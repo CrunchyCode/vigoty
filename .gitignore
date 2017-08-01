@@ -1,0 +1,5 @@
+*.pyc
+staticfiles
+__pycache__/
+.cache/
+media/
