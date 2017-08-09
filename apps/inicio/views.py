@@ -4,7 +4,7 @@ from django.views.generic import TemplateView
 
 class LandingView(TemplateView):
     def get(self, request, *args, **kwargs):
-        return render(request, 'landing.html')
+        return render(request, 'login.html')
 
     def post(self, request, *args, **kwargs):
         pass
