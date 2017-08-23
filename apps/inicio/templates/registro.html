@@ -1,0 +1,64 @@
+{% extends "master/base.html" %}
+{% load static %}
+
+{% block importCSS %}
+    <link href="{% static 'css/general/colorgraph.css' %}" rel="stylesheet" type="text/css"/>
+{% endblock importCSS %}
+
+{% block titulo %} - Registro{% endblock titulo %}
+
+{% block contenido %}
+    <div class="row">
+        <div class="col-xs-12 col-sm-8 col-md-6 col-sm-offset-2 col-md-offset-3">
+            <form id="registroUsuarioForm" method="POST" action="{% url 'registro' %}">
+                {% csrf_token %}
+                <h2>Registrarme</h2>
+                <hr class="colorgraph">
+                <a href="" class="btn btn-lg btn-primary btn-block">
+                    <i class="icon-facebook"></i> Registrate via Facebook
+                </a>
+                <hr class="colorgraph">
+                {% include "master/mensaje.html" %}
+                <div class="row">
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+                        <div class="form-group">
+                            <input type="text" name="first_name" id="first_name" class="form-control input-lg" placeholder="Nombres" tabindex="1">
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+                        <div class="form-group">
+                            <input type="text" name="last_name" id="last_name" class="form-control input-lg" placeholder="Apellidos" tabindex="2">
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <input type="email" name="email" id="email" class="form-control input-lg" placeholder="Email" tabindex="3">
+                </div>
+                <div class="row">
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+                        <div class="form-group">
+                            <input type="password" name="password" id="password" class="form-control input-lg" placeholder="Contraseña" tabindex="4">
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+                        <div class="form-group">
+                            <input type="password" name="password_confirmation" id="password_confirmation" class="form-control input-lg" placeholder="Confirmar Contraseña" tabindex="5">
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xs-12 col-sm-12 col-md-12" style="text-align:center;">
+                        <span class="label label-primary">Registrandote estaras aceptando los terminos y condiciones de la plataforma.</span>
+                    </div>
+                </div>
+
+                <hr class="colorgraph">
+                <div class="row">
+                    <div class="col-xs-12 col-md-12">
+                        <input type="submit" value="Registrar" class="btn btn-success btn-block btn-lg" tabindex="7">
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock contenido %}
