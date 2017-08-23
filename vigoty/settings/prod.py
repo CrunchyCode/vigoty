@@ -18,3 +18,8 @@ DATABASES = {
         'PORT': '5432',
     }
 }
+
+django.setup()
+LOGIN_URL = reverse('login')
+LOGIN_REDIRECT_URL = reverse('tienda')
+LOGOUT_REDIRECT_URL = reverse('landing')

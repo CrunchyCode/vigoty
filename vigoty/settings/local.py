@@ -24,3 +24,8 @@ STATIC_ROOT = '/static'
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
+
+django.setup()
+LOGIN_URL = reverse('login')
+LOGIN_REDIRECT_URL = reverse('tienda')
+LOGOUT_REDIRECT_URL = reverse('landing')

@@ -5,7 +5,7 @@ from django.contrib import messages
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.models import User
 from django.contrib.auth.hashers import make_password
-from .forms import UsuarioForm
+from .forms import UsuarioForm, PerfilForm
 from .models import Perfil
 
 
@@ -59,3 +59,50 @@ class RegistroView(TemplateView):
             msg = 'Datos incorrectos'
             messages.add_message(request, messages.ERROR, msg)
             return redirect('registro')
+
+
+class LoginView(TemplateView):
+    def get(self, request, *args, **kwargs):
+        if request.user.is_authenticated():
+            return redirect('tienda')
+        else:
+            return render(request, 'login.html')
+
+    def post(self, request, *args, **kwargs):
+        user = authenticate(
+                    username=request.POST.get('email'),
+                    password=request.POST.get('password')
+                )
+        if user is not None:
+            if user.is_active:
+                login(request, user)
+                return redirect('tienda')
+        else:
+            msg = 'Usuario no existe'
+            messages.add_message(request, messages.ERROR, msg)
+            return redirect('login')
+
+
+class PerfilView(TemplateView):
+    def get(self, request, *args, **kwargs):
+        perfil = Perfil.objects.get(usuario=request.user)
+
+        return render(request, 'perfil.html', {'perfil': perfil})
+
+    def post(self, request, *args, **kwargs):
+        obj = Perfil.objects.get(usuario=request.user)
+        form = PerfilForm(request.POST, instance=obj)
+        if form.is_valid():
+            perfil = form.save(commit=False)
+            perfil.usuario = request.user
+            try:
+                perfil.imagen_perfil = request.FILES['imagen_perfil']
+            except Exception:
+                print("no hay imagen")
+            perfil.save()
+        else:
+            msg = 'Datos de Perfil incorrectos'
+            messages.add_message(request, messages.ERROR, msg)
+            print(form.errors)
+
+        return redirect('perfil')
