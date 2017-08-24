@@ -14,7 +14,7 @@
                 {% csrf_token %}
                 <h2>Registrarme</h2>
                 <hr class="colorgraph">
-                <a href="" class="btn btn-lg btn-primary btn-block">
+                <a href="{% url 'social:begin' 'facebook' %}" class="btn btn-lg btn-primary btn-block">
                     <i class="icon-facebook"></i> Registrate via Facebook
                 </a>
                 <hr class="colorgraph">

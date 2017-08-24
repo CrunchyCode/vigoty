@@ -27,7 +27,10 @@ class InicioView(TemplateView):
 
 class RegistroView(TemplateView):
     def get(self, request, *args, **kwargs):
-        return render(request, 'registro.html')
+        if request.user.is_authenticated():
+            return redirect('tienda')
+        else:
+            return render(request, 'registro.html')
 
     def post(self, request, *args, **kwargs):
         form = UsuarioForm(request.POST)
@@ -85,7 +88,7 @@ class LoginView(TemplateView):
 
 class PerfilView(TemplateView):
     def get(self, request, *args, **kwargs):
-        perfil = Perfil.objects.get(usuario=request.user)
+        perfil = Perfil.objects.get(usuario__email=request.user.email)
 
         return render(request, 'perfil.html', {'perfil': perfil})
 
