@@ -1,0 +1,46 @@
+@import url(https://fonts.googleapis.com/css?family=Acme);
+.hover-module {
+    float: left;
+    background-size: cover;
+    position: relative;
+}
+
+.hover-module hovernombreeat {
+    position: absolute;
+    bottom: 40px;
+    left: 10px;
+    background: rgba(0, 0, 0, 0.60);
+    padding: 4px 8px;
+    color: white;
+    margin: 0;
+    font-size: 20px;
+    font-family: 'Acme';
+}
+
+.hover-module hovernombrefood {
+    position: absolute;
+    bottom: 10px;
+    left: 10px;
+    background: rgba(0, 0, 0, 0.60);
+    padding: 4px 8px;
+    color: white;
+    margin: 0;
+    font-size: 20px;
+    font-family: 'Acme';
+}
+
+.hover-module hovernombrecreador {
+    position: absolute;
+    bottom: 0px;
+    left: 0px;
+    padding: 4px 8px;
+    color: black;
+    margin: 0;
+    font-size: 12px;
+    font-family: 'Acme';
+}
+
+.opp hovernombre {
+    background: rgba(255, 255, 255, 0.75);
+    color: black;
+}

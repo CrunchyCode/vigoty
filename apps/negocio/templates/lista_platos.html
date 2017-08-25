@@ -1,0 +1,32 @@
+{% extends 'master/base.html' %}
+{% load static %}
+
+{% block importCSS %}
+    <link href="{% static 'css/general/image-hovers.css' %}" rel="stylesheet" type="text/css"/>
+    <link href="{% static 'css/general/colorgraph.css' %}" rel="stylesheet" type="text/css"/>
+{% endblock importCSS %}
+
+{% block contenido %}
+
+<div class="row">
+    <div class="col-md-12">
+        <h1>MIS PLATOS</h1>
+        <hr class="colorgraph">
+    </div>
+    {% if platos %}
+        {% for pla in platos %}
+            <div class="col-lg-3 col-md-4 col-sm-6 col-xs-12 imagen-lista">
+                <div class="hover-module">
+                    <a href="{% url 'platos' %}/e/{{ pla.id }}">
+                        <img class="img-responsive" src="{{pla.imagen.url}}" style="width:440px; height: 200px;" alt="">
+                        <hovernombrefood>{{pla.nombre|upper}}</hovernombrefood>
+                    </a>
+                </div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <div class="alert alert-danger" role="alert">NO TIENE PLATOS REGISTRADOS</div>
+    {% endif %}
+</div>
+
+{% endblock contenido %}

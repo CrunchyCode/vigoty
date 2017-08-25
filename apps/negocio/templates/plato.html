@@ -1,0 +1,129 @@
+{% extends 'master/base.html' %}
+{% load static %}
+
+{% block importCSS %}
+    <link href="{% static 'css/general/image-hovers.css' %}" rel="stylesheet" type="text/css"/>
+    <link href="{% static 'css/general/colorgraph.css' %}" rel="stylesheet" type="text/css"/>
+{% endblock importCSS %}
+
+{% block contenido %}
+
+<div class="row">
+	<div class="col-md-12">
+        {% if plato.id %}
+            <h1 style="text-align:center;">EDITAR PLATO</h1>
+        {% else %}
+            <h1 style="text-align:center;">NUEVO PLATO</h1>
+        {% endif %}
+        <hr class="colorgraph">
+	</div>
+</div>
+<div class="row">
+	<div class="col-md-6">
+		<form id="platoForm" method="POST" class="form-horizontal" enctype="multipart/form-data">
+			{% csrf_token %}
+			<div class="form-group">
+			    <label for="inputEmail2" class="col-sm-3 control-label">Imagen:</label>
+			    <div class="col-sm-9">
+			      	<input type='file' id="imagen" name="imagen" onchange="imagenNoSeleccionada()"/>
+			    </div>
+		  	</div>
+			<div class="form-group">
+			    <label for="inputEmail3" class="col-sm-3 control-label">Nombre:</label>
+			    <div class="col-sm-9">
+			      	<input type="text" class="form-control" id="nombre" name="nombre" onkeyup="imagenYaSelecionada()" maxlength="90" value="{{ plato.nombre }}">
+			    </div>
+		  	</div>
+		  	<div class="form-group">
+			    <label for="inputEmail3" class="col-sm-3 control-label">Ingredientes:</label>
+			    <div class="col-sm-9">
+			    	<textarea name="ingredientes" id="ingredientes" cols="30" rows="6" class="form-control" placeholder="Una breve descripcion de los ingredientes que usaste." style="resize: none;">{{ plato.ingredientes }}</textarea>
+			    </div>
+		  	</div>
+		  	<div class="form-group">
+			    <label for="inputEmail2" class="col-sm-3 control-label">Tipo:</label>
+			    <div class="col-sm-9">
+			      	<select name="tipo_plato" id="tipo_plato" class="form-control">
+			      		{% for ti in tipos_plato %}
+			      			{% if plato.tipo_plato.id == ti.id %}
+			      				<option value="{{ ti.id }}" selected>{{ ti.nombre }}</option>
+			      			{% else %}
+								<option value="{{ ti.id }}">{{ ti.nombre }}</option>
+			      			{% endif %}
+			      		{% endfor %}
+			      	</select>
+			    </div>
+		  	</div>
+		  	<div class="form-group">
+			    <div class="col-sm-offset-3 col-sm-10">
+                    {% if plato.id %}
+                        <input type="submit" value="Editar Plato" class="btn btn-fresh">
+                    {% else %}
+                        <input type="submit" value="Crear Plato" class="btn btn-fresh">
+                    {% endif %}
+			    </div>
+		  	</div>
+		</form>
+	</div>
+	<div class="col-md-6">
+		<div class="hover-module" id="moduleid">
+			<img id="preimagen" src="{{ plato.imagen.url }}" class="img-responsive" style="width: 500px; height: 100%;" alt="" />
+		</div>
+	</div>
+</div>
+
+{% endblock contenido %}
+
+{% block importJS %}
+	<script src="{% static 'js/general/previsualizar-imagen.js' %}" type="text/javascript"></script>
+	<script src="{% static 'js/validacion/validacion_plato.js' %}" type="text/javascript"></script>
+
+	<script>
+		{% if plato %}
+			imagenNoSeleccionada();
+		{% endif %}
+
+		{% if perfil.direccion != "" %}
+			$("#span_otra_direccion").hide();
+		{% endif %}
+
+		$('input[type=radio][name=rbt_direccion]').change(function() {
+	        if (this.value == '1') {
+	        	// MI DIRECCION
+	            $("#span_mi_direccion").show();
+	            $("#span_otra_direccion").hide();
+	        }
+	        else if (this.value == '2') {
+	        	// OTRA DIRECCION
+	            $("#span_mi_direccion").hide();
+	            $("#span_otra_direccion").show();
+	        }
+	    });
+
+		function imagenYaSelecionada(){
+			if($("#preimagen").attr("src") != "#"){
+				if(typeof $("#idhovernombre").val() == "undefined" || $("#idhovernombre").val() == null){
+					var html = "<hovernombrefood id='idhovernombre'>" + $("#nombre").val().toUpperCase() + "</hovernombrefood>";
+					$("#moduleid").append(html);
+				}
+				else{
+					$("#idhovernombre").html($("#nombre").val().toUpperCase());
+				}
+			}
+		}
+
+		function imagenNoSeleccionada(){
+			if($("#nombre").val() != ""){
+				if(typeof $("#idhovernombre").val() == "undefined" || $("#idhovernombre").val() == null){
+					var html = "<hovernombrefood id='idhovernombre'>" + $("#nombre").val().toUpperCase() + "</hovernombrefood>";
+					$("#moduleid").append(html);
+
+				}
+				else{
+					$("#idhovernombre").html($("#nombre").val().toUpperCase());
+				}
+			}
+		}
+	</script>
+
+{% endblock importJS %}
