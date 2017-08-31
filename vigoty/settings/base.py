@@ -128,3 +128,6 @@ SOCIAL_AUTH_FACEBOOK_SCOPE = ['email']
 SOCIAL_AUTH_FACEBOOK_PROFILE_EXTRA_PARAMS = {
     'fields': 'id, email, last_name, first_name',
 }
+
+# VARIABLES GLOBALES
+GLOBAL_CANTIDAD_MAXIMA = 15

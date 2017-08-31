@@ -1,0 +1,254 @@
+{% extends 'master/base.html' %}
+{% load static %}
+
+{% block importCSS %}
+    <link href="{% static 'css/jquery/jquery-ui.min.css' %}" rel="stylesheet" type="text/css"/>
+    <link href="{% static 'css/jquery/jquery-ui.structure.min.css' %}" rel="stylesheet" type="text/css"/>
+    <link href="{% static 'css/jquery/jquery-ui.theme.min.css' %}" rel="stylesheet" type="text/css"/>
+    <link href="{% static 'css/jquery/jquery.ui.timepicker.css' %}" rel="stylesheet" type="text/css"/>
+
+    <link href="{% static 'css/general/colorgraph.css' %}" rel="stylesheet" type="text/css"/>
+{% endblock importCSS %}
+
+{% block contenido %}
+
+<div class="row">
+	<div class="col-md-12">
+		<h2 style="text-align:center">MENU</h2>
+        <hr class="colorgraph">
+	</div>
+</div>
+{% if msg_estado %}
+	{% if menu.estado == "1" %}
+		<div class="alert alert-warning" role="alert" align="center">{{ msg_estado }}</div>
+	{% else %}
+		<div class="alert alert-success" role="alert" align="center">{{ msg_estado }}</div>
+	{% endif %}
+{% endif %}
+<form id="menuForm" method="POST" class="form-horizontal" enctype="multipart/form-data">
+	{% csrf_token %}
+	<div class="row">
+		<div class="col-md-6">
+			<div class="form-group">
+			    <label class="col-sm-3 control-label">Fecha Disponible:</label>
+			    <div class="col-sm-4">
+					<div class='input-group date' id='datetimepicker1'>
+                        <input id="fecha_disponibilidad" name="fecha_disponibilidad" type='text' class="form-control" value="asdasdasdsad"/>
+                        <span class="input-group-addon">
+                            <span class="glyphicon glyphicon-calendar"></span>
+                        </span>
+                    </div>
+				</div>
+			</div>
+			<div class="form-group">
+			    <label class="col-sm-3 control-label">Nombre:</label>
+			    <div class="col-sm-9">
+			      	<input type="text" class="form-control" id="nombre" name="nombre" maxlength="45" value="{{ menu.nombre }}" placeholder="El nombre de tu menu.">
+			    </div>
+		  	</div>
+		  	<div class="form-group">
+			    <label class="col-sm-3 control-label">Breve Descripcion:</label>
+			    <div class="col-sm-9">
+			    	<input type="text" name="breve_descripcion" id="breve_descripcion" maxlength="80" class="form-control" placeholder="La manera mas simple para atraer a tus clientes." value="{{ menu.breve_descripcion }}">
+			    </div>
+		  	</div>
+		  	<div class="form-group">
+			    <label class="col-sm-3 control-label">Precio:</label>
+			    <div class="col-sm-4">
+			      	<input type="number" step="any" class="form-control" id="precio" name="precio" value="{{ menu.precio }}">
+			    </div>
+		  	</div>
+		  	<div class="form-group">
+			    <label class="col-sm-3 control-label">Hora a recoger:</label>
+			    <div class="col-sm-9">
+			      	<input type="text" id="timepicker_start" name="h_inicio" class="form-control" style="width: 60px;" value="{{ menu.rango_hora|slice:'0:5' }}">
+			      	<input type="text" id="timepicker_end" name="h_fin" class="form-control" style="width: 60px;" value="{{ menu.rango_hora|slice:'8:13' }}">
+			    </div>
+		  	</div>
+		  	<div class="form-group">
+			    <label class="col-sm-3 control-label">Maximo stock:</label>
+			    <div class="col-sm-3">
+			    	{{ selectHTML|safe }}
+			    </div>
+		  	</div>
+		  	<div class="form-group">
+			    <label class="col-sm-3 control-label">Tipo Entrega:</label>
+			    <div class="col-sm-9">
+			      	<select name="tipo_entrega" id="tipo_entrega" class="form-control">
+			      		{% for ti in tipos_entrega %}
+			      			{% if menu.tipo_entrega.id == ti.id %}
+								<option value="{{ ti.id }}" selected>{{ ti.nombre }}</option>
+			      			{% else %}
+			      				<option value="{{ ti.id }}">{{ ti.nombre }}</option>
+			      			{% endif %}
+			      		{% endfor %}
+			      	</select>
+			    </div>
+		  	</div>
+		  	<div class="form-group">
+			    <label class="col-sm-3 control-label">Lugar:</label>
+			    <div class="col-sm-9">
+			    	{% if perfil.direccion != "" %}
+				    	<label class="radio-inline">
+						  	<input type="radio" name="rbt_direccion" value="1" checked> Mi direccion
+						</label>
+			    		<label class="radio-inline">
+						  	<input type="radio" name="rbt_direccion" value="2"> Otra direccion
+						</label>
+			      		<br>
+			      		<span id="span_mi_direccion">
+			      			<h4>{{ perfil.direccion }}</h4>
+			      		</span>
+			      		<span id="span_otra_direccion">
+			      			<input type="text" name="direccion" id="direccion" value="" class="form-control" placeholder="Ingrese direccion" required>
+			      		</span>
+			    	{% else %}
+			    		<input type="text" name="direccion" id="direccion" value="" class="form-control" placeholder="Ingrese direccion" required>
+			    	{% endif %}
+			    </div>
+		  	</div>
+		  	<div class="form-group">
+			    <div class="col-sm-offset-3 col-sm-10">
+			    	<input type="hidden" id="menu_id" name="menu_id" value="{{ menu.id }}">
+			      	<input type="button" onclick="dataMenu()" value="Publicar Menu" class="btn btn-fresh">
+			    </div>
+		  	</div>
+		</div>
+		<div class="col-md-6">
+			<h4 style="text-align:center">PLATOS DEL MENU</h4>
+			{{ divTIPO|safe }}
+		</div>
+
+	</div>
+</form>
+
+{% endblock contenido %}
+
+{% block importJS %}
+	<script src="{% static 'js/jquery/jquery-ui.min.js' %}" type="text/javascript"></script>
+	<script src="{% static 'js/jquery/jquery.ui.timepicker.js' %}" type="text/javascript"></script>
+
+	<script src="{% static 'js/validacion/publicarmenu.js' %}" type="text/javascript"></script>
+
+	<script>
+
+		$(document).ready(function() {
+		   	$('#timepicker_start').timepicker({
+		       	showLeadingZero: false,
+		       	onSelect: tpStartSelect,
+		       	maxTime: {
+		        	hour: 16, minute: 30
+		       	}
+		   	});
+
+		   	$('#timepicker_end').timepicker({
+		       	showLeadingZero: false,
+		       	onSelect: tpEndSelect,
+		       	minTime: {
+		        	hour: 9, minute: 15
+		       	}
+		   	});
+
+		   	var today = new Date();
+		   	var tomorrow = new Date(today.getFullYear(), today.getMonth(), today.getDate()+1);
+
+		   	{% if menu.fecha_disponibilidad %}
+		   		var tomorrow = new Date({{ menu.fecha_disponibilidad|date:'Y' }}, {{ menu.fecha_disponibilidad|date:'m' }}-1, {{ menu.fecha_disponibilidad|date:'d' }});
+		   	{% endif %}
+		   	$('#datetimepicker1').datetimepicker({
+                locale: 'es',
+                format: 'DD/MM/YYYY',
+                minDate: tomorrow
+            });
+
+            $("#cantidad_maxima").val("{{ menu.cantidad_maxima }}");
+		});
+
+		// when start time change, update minimum for end timepicker
+		function tpStartSelect( time, endTimePickerInst ) {
+		   	$('#timepicker_end').timepicker('option', {
+		       	minTime: {
+		        	hour: endTimePickerInst.hours,
+		           	minute: endTimePickerInst.minutes
+		       	}
+		   	});
+		}
+
+		// when end time change, update maximum for start timepicker
+		function tpEndSelect( time, startTimePickerInst ) {
+		   	$('#timepicker_start').timepicker('option', {
+		       	maxTime: {
+		           	hour: startTimePickerInst.hours,
+		           	minute: startTimePickerInst.minutes
+		       	}
+		   	});
+		}
+
+		{% for pla in platos %}
+			var html = '';
+			html += '<div class="thumbnail col-sm-4">';
+		      	html += '<img class="img-responsive" src="{{pla.imagen.url}}" style="width:200px; height:150px;" alt="">';
+	      		html += '<div class="caption" style="text-align:center;">';
+	      			html += '<label class="radio-inline">';
+	      				{% if detmen %}
+	      					{% for det in detmen %}
+	      						{% if det.plato.tipo_plato.id == pla.tipo_plato.id %}
+	      							{% if det.plato.id == pla.id %}
+			      						html += '<input type="radio" name="rbt_{{ pla.tipo_plato.id }}" value="{{ pla.id }}" checked> {{ pla.nombre }}';
+			      					{% endif %}
+	      						{% endif %}
+		      				{% endfor %}
+		      				{% if no_platos %}
+		      					{% for np in no_platos %}
+		      						{% if np.tipo_plato.id == pla.tipo_plato.id %}
+		      							{% if np.id == pla.id %}
+				      						html += '<input type="radio" name="rbt_{{ pla.tipo_plato.id }}" value="{{ pla.id }}"> {{ pla.nombre }}';
+				      					{% endif %}
+		      						{% endif %}
+			      				{% endfor %}
+		      				{% endif %}
+	      				{% else %}
+	      					html += '<input type="radio" name="rbt_{{ pla.tipo_plato.id }}" value="{{ pla.id }}"> {{ pla.nombre }}';
+	      				{% endif %}
+					html += '</label>';
+		      	html += '</div>';
+		    html += '</div>';
+			$("#div_"+{{ pla.tipo_plato.id }}).append(html);
+		{% endfor %}
+
+		{% if perfil.direccion != "" %}
+			$("#span_otra_direccion").hide();
+		{% endif %}
+
+		$('input[type=radio][name=rbt_direccion]').change(function() {
+	        if (this.value == '1') {
+	        	// MI DIRECCION
+	            $("#span_mi_direccion").show();
+	            $("#span_otra_direccion").hide();
+	        }
+	        else if (this.value == '2') {
+	        	// OTRA DIRECCION
+	            $("#span_mi_direccion").hide();
+	            $("#span_otra_direccion").show();
+	        }
+	    });
+
+
+	    function dataMenu(){
+	    	var $questions = $(".radios");
+	    	var valor = false;
+	    	$questions.find("input:radio:checked").each(function(){
+				if($(this).val() != "0"){
+					valor = true;
+				}
+			});
+			if(valor){
+				$("#menuForm").submit();
+			}
+			else{
+				alert("Seleccione al menos un plato para su Menu.");
+			}
+	    }
+	</script>
+
+{% endblock importJS %}
