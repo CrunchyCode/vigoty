@@ -14,7 +14,11 @@
 
 <div class="row">
 	<div class="col-md-12">
-		<h2 style="text-align:center">MENU</h2>
+        {% if menu %}
+            <h2 style="text-align:center">EDICION DE MENU</h2>
+        {% else %}
+            <h2 style="text-align:center">CREACION DE MENU</h2>
+        {% endif %}
         <hr class="colorgraph">
 	</div>
 </div>
@@ -28,6 +32,7 @@
 <form id="menuForm" method="POST" class="form-horizontal" enctype="multipart/form-data">
 	{% csrf_token %}
 	<div class="row">
+        {% include "master/mensaje.html" %}
 		<div class="col-md-6">
 			<div class="form-group">
 			    <label class="col-sm-3 control-label">Fecha Disponible:</label>
@@ -109,8 +114,12 @@
 		  	</div>
 		  	<div class="form-group">
 			    <div class="col-sm-offset-3 col-sm-10">
-			    	<input type="hidden" id="menu_id" name="menu_id" value="{{ menu.id }}">
-			      	<input type="button" onclick="dataMenu()" value="Publicar Menu" class="btn btn-fresh">
+                    {% if menu %}
+                        <input type="button" onclick="dataMenu()" value="Editar Menu" class="btn btn-fresh">
+                    {% else %}
+                        <input type="button" onclick="dataMenu()" value="Publicar Menu" class="btn btn-fresh">
+                    {% endif %}
+
 			    </div>
 		  	</div>
 		</div>

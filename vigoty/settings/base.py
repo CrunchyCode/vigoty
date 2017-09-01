@@ -34,6 +34,7 @@ INSTALLED_APPS = [
     'social_django',
     'apps.inicio',
     'apps.negocio',
+    'apps.venta',
 ]
 
 MIDDLEWARE = [
@@ -121,6 +122,7 @@ SOCIAL_AUTH_PIPELINE = (
 # KEYS
 SOCIAL_AUTH_FACEBOOK_KEY = os.getenv('SOCIAL_AUTH_FACEBOOK_KEY')
 SOCIAL_AUTH_FACEBOOK_SECRET = os.getenv('SOCIAL_AUTH_FACEBOOK_SECRET')
+GOOGLE_GEOCODE_KEY = os.getenv('GOOGLE_GEOCODE_KEY')
 
 SOCIAL_AUTH_LOGIN_REDIRECT_URL = '/'
 SOCIAL_AUTH_LOGIN_ERROR_URL = '/'

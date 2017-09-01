@@ -17,14 +17,6 @@ class LandingView(TemplateView):
         pass
 
 
-class InicioView(TemplateView):
-    def get(self, request, *args, **kwargs):
-        return render(request, 'home.html')
-
-    def post(self, request, *args, **kwargs):
-        pass
-
-
 class RegistroView(TemplateView):
     def get(self, request, *args, **kwargs):
         if request.user.is_authenticated():

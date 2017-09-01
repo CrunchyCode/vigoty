@@ -1,13 +1,16 @@
+from datetime import datetime, date
 from django.shortcuts import render, redirect
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.staticfiles.templatetags.staticfiles import static
 from django.shortcuts import get_object_or_404
-# from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import ObjectDoesNotExist
 from django.views.generic import TemplateView
 from apps.inicio.models import Perfil
-from .models import Plato, TipoPlato, TipoEntrega
-from .forms import PlatoForm
+from apps.venta.models import Pedido
+from apps.metodos_globales import set_data_menu
+from .models import Plato, TipoPlato, TipoEntrega, Menu, DetalleMenuPlato
+from .forms import PlatoForm, MenuForm
 
 
 class ListaPlatosView(TemplateView):
@@ -59,7 +62,7 @@ class PlatoView(TemplateView):
                 msg = 'Edicion invalida'
                 messages.add_message(request, messages.ERROR, msg)
                 print(form.errors)
-                return redirect('editar_plato')
+                return redirect('editar-plato')
         except KeyError:
             # CREACION DE PLATO
             form = PlatoForm(request.POST, request.FILES)
@@ -71,7 +74,7 @@ class PlatoView(TemplateView):
                 msg = 'Datos incorrectos'
                 messages.add_message(request, messages.ERROR, msg)
                 print(form.errors)
-                return redirect('nuevo_plato')
+                return redirect('nuevo-plato')
 
         return redirect('platos')
 
@@ -131,27 +134,27 @@ class PublicarMenuView(TemplateView):
 
         platos = Plato.objects.filter(creador=request.user)
 
+        menu = None
+        detmen = None
+        no_platos = None
+        msg_estado = None
+
         try:
             # EDICION DE MENU
-            # pk = kwargs['id']
-
-            menu = None
-            detmen = None
-            no_platos = None
-            msg_estado = None
-
             id_product = kwargs['id']
             menu = get_object_or_404(Menu, pk=id_product, creador=request.user)
-            detmen = DetalleMenuPlato.objects.filter(menu=menu, estado="1")
+            detmen = DetalleMenuPlato.objects.filter(menu=menu, estado='1')
             # LISTA DE PLATOS DEL MENU A EDITAR
             lst = DetalleMenuPlato.objects.filter(
-                menu=menu, estado="1").values_list('plato__id', flat=True)
+                menu=menu, estado='1').values_list('plato__id', flat=True)
             # LISTA DE PLATOS DEL COCINERO QUE NO ESTAN EN EL MENU
             no_platos = Plato.objects.all().exclude(id__in=lst)
-            if menu.estado == "1":
-                msg_estado = "Su Menu esta siendo validado para su pronta publicacion."
-            elif menu.estado == "2":
-                msg_estado = "Su Menu fue publicado."
+            if menu.estado == '1':
+                msg_estado = (
+                    'Su Menu esta siendo validado para su pronta publicacion.'
+                )
+            elif menu.estado == '2':
+                msg_estado = 'Su Menu fue publicado.'
 
         except KeyError:
             # CREACION DE MENU
@@ -165,8 +168,174 @@ class PublicarMenuView(TemplateView):
                 'selectHTML': selectHTML,
                 'divTIPO': divTIPO,
                 'platos': platos,
+                'detmen': detmen,
+                'no_platos': no_platos,
+                'msg_estado': msg_estado,
+                'perfil': perfil,
+                'menu': menu,
             }
         )
 
     def post(self, request, *args, **kwargs):
-        pass
+        try:
+            menu_id = kwargs['id']
+            # EDICION
+            hoy = date.today()
+            men = get_object_or_404(
+                Menu, pk=menu_id, creador=request.user
+            )
+            nro_pedidos = Pedido.objects.filter(menu=men).count()
+            form = MenuForm(request.POST, request.FILES, instance=men)
+            if form.is_valid():
+                if men.fecha_disponibilidad <= hoy or nro_pedidos > 0:
+                    # NO SE PUEDE EDITAR
+                    pass
+                else:
+                    # SI SE PUEDE EDITAR
+                    menu = form.save(commit=False)
+                    menu.fecha_disponibilidad = datetime.strptime(
+                        request.POST.get('fecha_disponibilidad'), "%d/%m/%Y"
+                    )
+                    menu.rango_hora = (
+                        request.POST.get('h_inicio') + ' - ' +
+                        request.POST.get('h_fin')
+                    )
+
+                    if request.POST.get('rbt_direccion') == '1':
+                        # MI DIRECCION
+                        perfil = Perfil.objects.get(
+                            usuario__id=request.user.id
+                        )
+                        menu = set_data_menu(perfil.direccion, menu)
+
+                    elif request.POST.get('rbt_direccion') == '2':
+                        # OTRA DIRECCION
+                        menu = set_data_menu(
+                            request.POST.get('direccion'), menu
+                        )
+
+                    else:
+                        # CUANDO USUARIO NO REGISTRA SU DIRECCION EN EL PERFIL
+                        menu = set_data_menu(
+                            request.POST.get('direccion'), menu
+                        )
+
+                        perfil = Perfil.objects.get(usuario=request.user)
+                        perfil.direccion = request.POST.get('direccion')
+                        perfil.save()
+
+                    menu.save()
+
+                    tipos_plato = Plato.objects.filter(
+                        creador=request.user).values_list(
+                        'tipo_plato__id', flat=True).distinct()
+
+                    lst_det = DetalleMenuPlato.objects.filter(menu=menu)
+                    for x in lst_det:
+                        x.estado = "2"
+                        x.save()
+
+                    for ti in tipos_plato:
+                        id_plato = request.POST.get("rbt_"+str(ti))
+                        if id_plato != "0":
+                            pla = Plato.objects.get(id=id_plato)
+                            try:
+                                detalle = DetalleMenuPlato.objects.get(
+                                    plato__id=id_plato, menu=menu
+                                )
+                                detalle.estado = "1"
+                            except ObjectDoesNotExist:
+                                detalle = DetalleMenuPlato()
+                            detalle.plato = pla
+                            detalle.menu = menu
+                            detalle.save()
+                msg = 'Menu editado correctamente!'
+                messages.add_message(request, messages.SUCCESS, msg)
+                return redirect('menu')
+            else:
+                msg = 'Datos invalidos. Verifique la información.'
+                messages.add_message(request, messages.ERROR, msg)
+                print(form.errors)
+                return redirect('publicar-menu')
+        except KeyError:
+            # CREACION
+            form = MenuForm(request.POST, request.FILES)
+            if form.is_valid():
+                menu = form.save(commit=False)
+                menu.fecha_disponibilidad = datetime.strptime(
+                    request.POST.get('fecha_disponibilidad'), "%d/%m/%Y"
+                )
+                menu.creador = request.user
+                menu.rango_hora = (
+                    request.POST.get('h_inicio') + ' - ' +
+                    request.POST.get('h_fin')
+                )
+
+                if request.POST.get("rbt_direccion") == "1":
+                    # MI DIRECCION
+                    perfil = Perfil.objects.get(usuario__id=request.user.id)
+                    menu = set_data_menu(perfil.direccion, menu)
+
+                elif request.POST.get("rbt_direccion") == "2":
+                    # OTRA DIRECCION
+                    menu = set_data_menu(request.POST.get("direccion"), menu)
+
+                else:
+                    # CUANDO USUARIO NO REGISTRA SU DIRECCION EN EL PERFIL
+                    menu = set_data_menu(request.POST.get("direccion"), menu)
+
+                    perfil = Perfil.objects.get(usuario=request.user)
+                    perfil.direccion = request.POST.get("direccion")
+                    perfil.save()
+
+                if menu is not None:
+                    menu.save()
+                else:
+                    msg = (
+                        'Direccion incorrecta, seleccione una ' +
+                        'proporcionada por Google.'
+                    )
+                    messages.add_message(request, messages.ERROR, msg)
+                    return redirect('publicar-menu')
+
+                tipos_plato = Plato.objects.filter(
+                    creador=request.user).values_list(
+                    'tipo_plato__id', flat=True).distinct()
+                for ti in tipos_plato:
+                    id_plato = request.POST.get("rbt_"+str(ti))
+                    if id_plato != "0":
+                        pla = Plato.objects.get(id=id_plato)
+                        detalle = DetalleMenuPlato()
+                        detalle.plato = pla
+                        detalle.menu = menu
+                        detalle.save()
+
+                msg = 'Menu creado correctamente!'
+                messages.add_message(request, messages.SUCCESS, msg)
+                return redirect('menu')
+            else:
+                msg = 'Datos invalidos. Verifique la información.'
+                messages.add_message(request, messages.ERROR, msg)
+                print(form.errors)
+                return redirect('publicar-menu')
+
+
+class MenuView(TemplateView):
+    def get(self, request, *args, **kwargs):
+        menus = Menu.objects.filter(creador=request.user)
+        for menu in menus:
+            detalles = DetalleMenuPlato.objects.filter(menu=menu, estado='1')
+            for det in detalles:
+                menu.plato_mostrar = Plato.objects.get(id=det.plato.id)
+                break
+
+        return render(
+            request,
+            'menu.html',
+            {
+                'menus': menus
+            }
+        )
+
+    def post(self, request, *args, **kwargs):
+        return redirect('menu')

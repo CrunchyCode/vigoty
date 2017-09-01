@@ -22,4 +22,5 @@ urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^', include('apps.inicio.urls')),
     url(r'^', include('apps.negocio.urls')),
+    url(r'^', include('apps.venta.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
