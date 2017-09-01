@@ -8,6 +8,7 @@
     <link href="{% static 'css/jquery/jquery.ui.timepicker.css' %}" rel="stylesheet" type="text/css"/>
 
     <link href="{% static 'css/general/colorgraph.css' %}" rel="stylesheet" type="text/css"/>
+    <link href="{% static 'css/sweet_alert/sweetalert.css' %}" rel="stylesheet" type="text/css"/>
 {% endblock importCSS %}
 
 {% block contenido %}
@@ -15,9 +16,9 @@
 <div class="row">
 	<div class="col-md-12">
         {% if menu %}
-            <h2 style="text-align:center">EDICION DE MENU</h2>
+            <h1 style="text-align:center">EDICION DE MENU</h1>
         {% else %}
-            <h2 style="text-align:center">CREACION DE MENU</h2>
+            <h1 style="text-align:center">CREACION DE MENU</h1>
         {% endif %}
         <hr class="colorgraph">
 	</div>
@@ -134,130 +135,128 @@
 {% endblock contenido %}
 
 {% block importJS %}
+    <script src="{% static 'js/jquery/jquery.validate.js' %}" type="text/javascript"></script>
+    <script src="{% static 'js/moment/moment-with-locales.js' %}" type="text/javascript"></script>
+    <script src="{% static 'js/bootstrap/bootstrap-datetimepicker.js' %}" type="text/javascript"></script>
 	<script src="{% static 'js/jquery/jquery-ui.min.js' %}" type="text/javascript"></script>
 	<script src="{% static 'js/jquery/jquery.ui.timepicker.js' %}" type="text/javascript"></script>
 
-	<script src="{% static 'js/validacion/publicarmenu.js' %}" type="text/javascript"></script>
+    <script src="{% static 'js/sweet_alert/sweetalert.min.js' %}" type="text/javascript"></script>
+    <script src="{% static 'js/validacion/publicarmenu.js' %}" type="text/javascript"></script>
 
-	<script>
-
-		$(document).ready(function() {
-		   	$('#timepicker_start').timepicker({
-		       	showLeadingZero: false,
-		       	onSelect: tpStartSelect,
-		       	maxTime: {
-		        	hour: 16, minute: 30
-		       	}
-		   	});
-
-		   	$('#timepicker_end').timepicker({
-		       	showLeadingZero: false,
-		       	onSelect: tpEndSelect,
-		       	minTime: {
-		        	hour: 9, minute: 15
-		       	}
-		   	});
-
-		   	var today = new Date();
-		   	var tomorrow = new Date(today.getFullYear(), today.getMonth(), today.getDate()+1);
-
-		   	{% if menu.fecha_disponibilidad %}
-		   		var tomorrow = new Date({{ menu.fecha_disponibilidad|date:'Y' }}, {{ menu.fecha_disponibilidad|date:'m' }}-1, {{ menu.fecha_disponibilidad|date:'d' }});
-		   	{% endif %}
-		   	$('#datetimepicker1').datetimepicker({
-                locale: 'es',
-                format: 'DD/MM/YYYY',
-                minDate: tomorrow
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $('#timepicker_start').timepicker({
+                showLeadingZero: false,
+                onSelect: tpStartSelect,
+                maxTime: {
+                    hour: 16,
+                    minute: 30
+                }
             });
 
+            $('#timepicker_end').timepicker({
+                showLeadingZero: false,
+                onSelect: tpEndSelect,
+                minTime: {
+                    hour: 9,
+                    minute: 15
+                }
+            });
+
+            var today = new Date();
+            var tomorrow = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1);
+
+            {% if menu.fecha_disponibilidad %}
+                var tomorrow = new Date({{ menu.fecha_disponibilidad|date:'Y' }}, {{ menu.fecha_disponibilidad|date:'m' }}-1, {{ menu.fecha_disponibilidad|date:'d' }});
+            {% endif %}
+            $('#datetimepicker1').datetimepicker({locale: 'es', format: 'DD/MM/YYYY', minDate: tomorrow});
+
             $("#cantidad_maxima").val("{{ menu.cantidad_maxima }}");
-		});
+        });
 
-		// when start time change, update minimum for end timepicker
-		function tpStartSelect( time, endTimePickerInst ) {
-		   	$('#timepicker_end').timepicker('option', {
-		       	minTime: {
-		        	hour: endTimePickerInst.hours,
-		           	minute: endTimePickerInst.minutes
-		       	}
-		   	});
-		}
+        // when start time change, update minimum for end timepicker
+        function tpStartSelect(time, endTimePickerInst) {
+            $('#timepicker_end').timepicker('option', {
+                minTime: {
+                    hour: endTimePickerInst.hours,
+                    minute: endTimePickerInst.minutes
+                }
+            });
+        }
 
-		// when end time change, update maximum for start timepicker
-		function tpEndSelect( time, startTimePickerInst ) {
-		   	$('#timepicker_start').timepicker('option', {
-		       	maxTime: {
-		           	hour: startTimePickerInst.hours,
-		           	minute: startTimePickerInst.minutes
-		       	}
-		   	});
-		}
+        // when end time change, update maximum for start timepicker
+        function tpEndSelect(time, startTimePickerInst) {
+            $('#timepicker_start').timepicker('option', {
+                maxTime: {
+                    hour: startTimePickerInst.hours,
+                    minute: startTimePickerInst.minutes
+                }
+            });
+        }
 
-		{% for pla in platos %}
-			var html = '';
-			html += '<div class="thumbnail col-sm-4">';
-		      	html += '<img class="img-responsive" src="{{pla.imagen.url}}" style="width:200px; height:150px;" alt="">';
-	      		html += '<div class="caption" style="text-align:center;">';
-	      			html += '<label class="radio-inline">';
-	      				{% if detmen %}
-	      					{% for det in detmen %}
-	      						{% if det.plato.tipo_plato.id == pla.tipo_plato.id %}
-	      							{% if det.plato.id == pla.id %}
-			      						html += '<input type="radio" name="rbt_{{ pla.tipo_plato.id }}" value="{{ pla.id }}" checked> {{ pla.nombre }}';
-			      					{% endif %}
-	      						{% endif %}
-		      				{% endfor %}
-		      				{% if no_platos %}
-		      					{% for np in no_platos %}
-		      						{% if np.tipo_plato.id == pla.tipo_plato.id %}
-		      							{% if np.id == pla.id %}
-				      						html += '<input type="radio" name="rbt_{{ pla.tipo_plato.id }}" value="{{ pla.id }}"> {{ pla.nombre }}';
-				      					{% endif %}
-		      						{% endif %}
-			      				{% endfor %}
-		      				{% endif %}
-	      				{% else %}
-	      					html += '<input type="radio" name="rbt_{{ pla.tipo_plato.id }}" value="{{ pla.id }}"> {{ pla.nombre }}';
-	      				{% endif %}
-					html += '</label>';
-		      	html += '</div>';
-		    html += '</div>';
-			$("#div_"+{{ pla.tipo_plato.id }}).append(html);
-		{% endfor %}
+        {% for pla in platos %}
+            var html = '';
+            html += '<div class="thumbnail col-sm-4">';
+            html += '<img class="img-responsive" src="{{pla.imagen.url}}" style="width:200px; height:150px;" alt="">';
+            html += '<div class="caption" style="text-align:center;">';
+            html += '<label class="radio-inline">';
+            {% if detmen %}
+                {% for det in detmen %}
+                    {% if det.plato.tipo_plato.id == pla.tipo_plato.id %}
+                        {% if det.plato.id == pla.id %}
+                            html += '<input type="radio" name="rbt_{{ pla.tipo_plato.id }}" value="{{ pla.id }}" checked> {{ pla.nombre }}';
+                        {% endif %}
+                    {% endif %}
+                {% endfor %}
+                {% if no_platos %}
+                    {% for np in no_platos %}
+                        {% if np.tipo_plato.id == pla.tipo_plato.id %}
+                            {% if np.id == pla.id %}
+                                html += '<input type="radio" name="rbt_{{ pla.tipo_plato.id }}" value="{{ pla.id }}"> {{ pla.nombre }}';
+                            {% endif %}
+                        {% endif %}
+                    {% endfor %}
+                {% endif %}
+            {% else %}
+                html += '<input type="radio" name="rbt_{{ pla.tipo_plato.id }}" value="{{ pla.id }}"> {{ pla.nombre }}';
+            {% endif %}
+            html += '</label>';
+            html += '</div>';
+            html += '</div>';
+            $("#div_" + {{ pla.tipo_plato.id }}).append(html);
+        {% endfor %}
 
-		{% if perfil.direccion != "" %}
-			$("#span_otra_direccion").hide();
-		{% endif %}
+        {% if perfil.direccion != "" %}
+            $("#span_otra_direccion").hide();
+        {% endif %}
 
-		$('input[type=radio][name=rbt_direccion]').change(function() {
-	        if (this.value == '1') {
-	        	// MI DIRECCION
-	            $("#span_mi_direccion").show();
-	            $("#span_otra_direccion").hide();
-	        }
-	        else if (this.value == '2') {
-	        	// OTRA DIRECCION
-	            $("#span_mi_direccion").hide();
-	            $("#span_otra_direccion").show();
-	        }
-	    });
+        $('input[type=radio][name=rbt_direccion]').change(function() {
+            if (this.value == '1') {
+                // MI DIRECCION
+                $("#span_mi_direccion").show();
+                $("#span_otra_direccion").hide();
+            } else if (this.value == '2') {
+                // OTRA DIRECCION
+                $("#span_mi_direccion").hide();
+                $("#span_otra_direccion").show();
+            }
+        });
 
-
-	    function dataMenu(){
-	    	var $questions = $(".radios");
-	    	var valor = false;
-	    	$questions.find("input:radio:checked").each(function(){
-				if($(this).val() != "0"){
-					valor = true;
-				}
-			});
-			if(valor){
-				$("#menuForm").submit();
-			}
-			else{
-				alert("Seleccione al menos un plato para su Menu.");
-			}
-	    }
-	</script>
+        function dataMenu() {
+            var $questions = $(".radios");
+            var valor = false;
+            $questions.find("input:radio:checked").each(function() {
+                if ($(this).val() != "0") {
+                    valor = true;
+                }
+            });
+            if (valor) {
+                $("#menuForm").submit();
+            } else {
+                swal("Aviso!", "Seleccione al menos un plato para su Menu.", "warning");
+            }
+        }
+    </script>
 
 {% endblock importJS %}
