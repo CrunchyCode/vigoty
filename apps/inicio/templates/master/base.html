@@ -8,10 +8,105 @@
     <script src="https://use.fontawesome.com/2ef1b4bc48.js"></script>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous"> {% block importCSS %}{% endblock importCSS %}
     <link href="{% static 'css/general/botonesFlat.css' %}" rel="stylesheet" type="text/css"/>
-    <link href="{% static 'css/bootstrap/bootstrap-datetimepicker.css' %}" rel="stylesheet" type="text/css"/>
+    <link href="{% static 'css/general/navbarLogin.css' %}" rel="stylesheet" type="text/css"/>
+    <link href="{% static 'css/bootstrap/bootstrap-datetimepicker.css' %}" rel="stylesheet" type="text/css"/>    
 </head>
 
 <body>
+
+    <div class="navbar navbar-static-top" role="navigation">
+            <div class="container">
+                <div class="navbar-header">
+                    <a class="navbar-brand" href="{% url 'tienda' %}">Vigoty</a>
+                </div>
+                <div class="navbar-collapse collapse">
+                    <ul class="nav navbar-nav navbar-right">
+                        {% if user.is_authenticated %}
+                            <li>
+                                <a href="{% url 'publicar-menu' %}">Publicar</a>
+                            </li>
+                            <li>
+                                <a href="{% url 'menu' %}">Mis Menus</a>
+                            </li>
+                            <li>
+                                <a href="#">Mis Pedidos</a>
+                            </li>
+                            <li>
+                                <a href="#">Mis Ventas</a>
+                            </li>
+                            <li>
+                                <a href="{% url 'platos' %}">Mis Platos</a>
+                            </li>
+                            <li>
+                                <a href="{% url 'nuevo-plato' %}">Nuevo Plato</a>
+                            </li>
+                            <li>
+                                <a href="{% url 'tienda' %}">Quiero Comer</a>
+                            </li>
+                            <li class="dropdown">
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                                    Mi Cuenta<b class="caret"></b>
+                                </a>
+                                <ul class="dropdown-menu">
+                                    <li>
+                                        <div class="navbar-content">
+                                            <div class="row">
+                                                <div class="col-md-5">
+                                                    {% if perfil %}
+                                                        {% if perfil.imagen_perfil != "" %}
+                                                            <img src="{{ perfil.imagen_perfil.url }}"
+                                                        alt="Alternate Text" class="img-responsive" />
+                                                        {% else %}
+                                                            <img src="http://placehold.it/120x120"
+                                                        alt="Alternate Text" class="img-responsive" />
+                                                        {% endif %}
+                                                    {% else %}
+                                                        <img src="http://placehold.it/120x120"
+                                                        alt="Alternate Text" class="img-responsive" />
+                                                    {% endif %}
+                                                    <p class="text-center small">
+                                                        <a href="{% url 'perfil' %}">Cambiar Foto</a></p>
+                                                </div>
+                                                <div class="col-md-7">
+                                                    <span>{{ user.first_name|title }} {{ user.last_name|title }}</span>
+                                                    <p class="text-muted small">
+                                                        {{ user.email }}
+                                                    </p>
+                                                    <div class="divider">
+                                                    </div>
+                                                    <a href="{% url 'perfil' %}" class="btn btn-sky btn-sm">Ver Perfil</a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="navbar-footer">
+                                            <div class="navbar-footer-content">
+                                                <div class="row">
+                                                    <div class="col-md-12">
+                                                        <a href="{% url 'logout' %}" class="btn btn-hot btn-sm btn-block">Cerrar Sesion</a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </li>
+                        {% else %}
+                            <li>
+                                <a href="{% url 'registro' %}">
+                                    Registrarme
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{% url 'login' %}">
+                                    Iniciar Sesion
+                                </a>
+                            </li>
+                        {% endif %}
+
+                    </ul>
+                </div>
+            </div>
+        </div>
 
     <div class="container">
         {% block contenido %}{% endblock contenido %}
