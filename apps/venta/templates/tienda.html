@@ -1,5 +1,139 @@
 {% extends 'master/base.html' %}
+{% load static %}
+
+{% block importCSS %}
+    <link href="{% static 'css/general/list-group.css' %}" rel="stylesheet" type="text/css"/>
+    <link href="{% static 'css/general/image-hovers.css' %}" rel="stylesheet" type="text/css"/>
+    <link href="{% static 'css/general/colorgraph.css' %}" rel="stylesheet" type="text/css"/>
+{% endblock importCSS %}
 
 {% block contenido %}
-    <h1>Tienda!</h1>
+
+<div class="row">
+    <form action="{% url 'tienda' %}" method="POST" class="form-inline" role="form">
+        {% csrf_token %}
+        <div align="center" class="col-md-12">
+            <h4>MENUS CERCA A: {{ perfil.direccion }}</h4>
+        </div>
+        {% if misma %}
+            <div align="center" class="col-xs-12 col-sm-12 col-md-12" id="caja_busqueda">
+                <input type="text" class="form-control" style="width:100%" name="busqueda" id="busqueda" required>
+            </div>
+            <div align="center" class="col-xs-12 col-sm-12 col-md-12" id="mi_direccion"></div>
+            <div align="center" class="col-md-12" id="btn-filtro">
+                <button class="btn btn-success" type="button" onclick="otraDireccion()">Otra Direccion</button>
+            </div>
+        {% else %}
+            <div align="center" class="col-xs-12 col-sm-12 col-md-12">
+                <h4>{{ otra_direccion|upper }}</h4>
+            </div>
+        {% endif %}
+    </form>
+</div>
+<hr class="colorgraph">
+<div class="row">
+    <div align="center" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+        <div class="list-group list-group-horizontal">
+            {% for fec in fechas %}
+                {% if fec_filtro|date:"Y-m-d" == fec|date:"Y-m-d" %}
+                    {% if forloop.first %}
+                        <a href="{% url 'tienda' %}/f/{{ fec|date:'Y-m-d' }}" class="list-group-item active">Mañana {{ fec|date:"d" }}</a>
+                    {% else %}
+                        <a href="{% url 'tienda' %}/f/{{ fec|date:'Y-m-d' }}" class="list-group-item active">{{ fec|date:"l" }} {{ fec|date:"d" }}</a>
+                    {% endif %}
+                {% else %}
+                    {% if forloop.first %}
+                        <a href="{% url 'tienda' %}/f/{{ fec|date:'Y-m-d' }}" class="list-group-item">Mañana {{ fec|date:"d" }}</a>
+                    {% else %}
+                        <a href="{% url 'tienda' %}/f/{{ fec|date:'Y-m-d' }}" class="list-group-item">{{ fec|date:"l" }} {{ fec|date:"d" }}</a>
+                    {% endif %}
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+</div>
+<hr class="colorgraph">
+<div class="row">
+    {% if menus %}
+        {% for menu in menus %}
+            <div class="col-lg-3 col-md-4 col-sm-6 col-xs-12 imagen-lista">
+                <div class="hover-module" style="height: 230px;">
+                    <a href="{% url 'tienda' %}/{{ menu.id }}">
+                        <img class="img-responsive" src="{{menu.plato_mostrar.imagen.url}}" style="width:440px; height: 200px;" alt="">
+                        <hovernombreeat>{{menu.nombre|upper}}</hovernombreeat>
+                    </a>
+                    <hovernombrecreador>
+                        <a href="{% url 'menu' %}/c/{{ menu.creador.id }}">
+                            HECHO POR {{menu.creador.first_name|upper}} {{menu.creador.last_name|upper}}
+                        </a>
+                        &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;{{ menu.distancia }}
+                    </hovernombrecreador>
+                </div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <div class="alert alert-warning" role="alert" align="center">NO HAY MENUS PARA EL {{ fec_filtro|date:"l"|upper }}, {{ fec_filtro|date:"F"|upper }} {{ fec_filtro|date:"d" }}</div>
+    {% endif %}
+</div>
+
 {% endblock contenido %}
+
+{% block importJS %}
+    <script src="https://maps.google.com/maps/api/js?libraries=places&key=AIzaSyADq3lOH4snPUnHyJMhlOJDkw8Lf80qS98"></script>
+    <script>
+        function otraDireccion(){
+            $("#mi_direccion").hide();
+            $("#caja_busqueda").show();
+            $("#btn-filtro").html("");
+        }
+
+        {% if perfil.direccion != "" %}
+            $("#mi_direccion").html('<h4>{{ perfil.direccion|upper }}</h4>');
+            $("#caja_busqueda").hide();
+        {% else %}
+            $("#mi_direccion").hide();
+            $("#caja_busqueda").show();
+        {% endif %}
+
+        {% if misma %}
+            var pac_input = document.getElementById('busqueda');
+
+            (function pacSelectFirst(input){
+                // store the original event binding function
+                var _addEventListener = (input.addEventListener) ? input.addEventListener : input.attachEvent;
+
+                function addEventListenerWrapper(type, listener) {
+                    // Simulate a 'down arrow' keypress on hitting 'return' when no pac suggestion is selected,
+                    // and then trigger the original listener.
+
+                    if (type == "keydown") {
+                        var orig_listener = listener;
+                        listener = function (event) {
+                            var suggestion_selected = $(".pac-item-selected").length > 0;
+                            if (event.which == 13 && !suggestion_selected) {
+                                var simulated_downarrow = $.Event("keydown", {keyCode:40, which:40})
+                                orig_listener.apply(input, [simulated_downarrow]);
+                            }
+
+                            orig_listener.apply(input, [event]);
+                        };
+                    }
+
+                    // add the modified listener
+                    _addEventListener.apply(input, [type, listener]);
+                }
+
+                if (input.addEventListener)
+                    input.addEventListener = addEventListenerWrapper;
+                else if (input.attachEvent)
+                    input.attachEvent = addEventListenerWrapper;
+
+            })(pac_input);
+
+
+            $(function(){
+                var autocomplete = new google.maps.places.Autocomplete(pac_input);
+            });
+        {% endif %}
+    </script>
+{% endblock importJS %}

@@ -43,7 +43,8 @@ def getDataDireccion(direccion, menus, fecha):
                 )
 
         # SOLO MENUS VALIDADOS
-        menus = menus.filter(pk__in=ids, estado=2)
+        # ESTADO '2' => PUBLICADO
+        menus = menus.filter(id__in=ids, estado=2)
 
         for menu in menus:
             detalles = DetalleMenuPlato.objects.filter(menu=menu)
@@ -82,8 +83,8 @@ def set_data_menu(direccion, menu):
         longitude = json_lat_lng['results'][0]['geometry']['location']['lng']
         latitude = json_lat_lng['results'][0]['geometry']['location']['lat']
 
-        menu.lat = str(longitude)
-        menu.lng = str(latitude)
+        menu.lat = str(latitude)
+        menu.lng = str(longitude)
         for x in json_lat_lng['results'][0]['address_components']:
             for y in x['types']:
                 if y == 'country':
@@ -119,7 +120,7 @@ def nearby_locations(latitude, longitude, radius, use_miles=False):
 
     cursor = connection.cursor()
 
-    sql = """ SELECT id, lat, lng, (%f * acos(cos(radians(%f)) * cos(radians(lat)) * cos(radians(lng) - radians(%f) ) + sin(radians(%f)) * sin(radians(lat)))) AS dis FROM sistema_menu WHERE (%f * acos(cos(radians(%f)) * cos(radians(lat)) * cos(radians(lng) - radians(%f) ) + sin(radians(%f)) * sin(radians(lat)))) < %d ORDER BY dis DESC """ % (distance_unit, latitude, longitude, latitude, distance_unit, latitude, longitude, latitude, int(radius))
+    sql = """ SELECT id, lat, lng, (%f * acos(cos(radians(%f)) * cos(radians(lat)) * cos(radians(lng) - radians(%f) ) + sin(radians(%f)) * sin(radians(lat)))) AS dis FROM negocio_menu WHERE (%f * acos(cos(radians(%f)) * cos(radians(lat)) * cos(radians(lng) - radians(%f) ) + sin(radians(%f)) * sin(radians(lat)))) < %d ORDER BY dis DESC """ % (distance_unit, latitude, longitude, latitude, distance_unit, latitude, longitude, latitude, int(radius))
 
     cursor.execute(sql)
     ids = dict((row[0], round(row[3], 2)) for row in cursor.fetchall())

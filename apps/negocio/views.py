@@ -322,7 +322,16 @@ class PublicarMenuView(TemplateView):
 
 class MenuView(TemplateView):
     def get(self, request, *args, **kwargs):
-        menus = Menu.objects.filter(creador=request.user)
+        try:
+            # LISTA DE MENUS DE UN COCINERO
+            id = kwargs['id']
+            menus = Menu.objects.filter(creador__id=id)
+            perfil = get_object_or_404(Perfil, usuario__id=id)
+        except KeyError:
+            # LISTA DE MENUS DEL USUARIO LOGUEADO
+            menus = Menu.objects.filter(creador=request.user)
+            perfil = None
+
         for menu in menus:
             detalles = DetalleMenuPlato.objects.filter(menu=menu, estado='1')
             for det in detalles:
@@ -333,7 +342,8 @@ class MenuView(TemplateView):
             request,
             'menu.html',
             {
-                'menus': menus
+                'menus': menus,
+                'perfil': perfil,
             }
         )
 

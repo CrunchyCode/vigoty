@@ -13,4 +13,6 @@ urlpatterns = [
     url(r'^publicar/e/(?P<id>[\d]+)$',
         login_required(PublicarMenuView.as_view()), name="editar-menu"),
     url(r'^menu$', login_required(MenuView.as_view()), name="menu"),
+    url(r'^menu/c/(?P<id>[\d]+)$',
+        login_required(MenuView.as_view()), name="menus-cocinero"),
 ]

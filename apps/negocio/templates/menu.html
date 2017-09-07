@@ -10,22 +10,43 @@
 
 <div class="row">
     <div class="col-md-12">
-        <h1 align="center">MIS MENUS</h1>
+        {% if perfil %}
+            <h1 align="center">MENUS DE {{ perfil.get_nombre_completo|upper }}</h1>
+        {% else %}
+            <h1 align="center">MIS MENUS</h1>
+        {% endif %}
         <hr class="colorgraph">
     </div>
-    {% if menus %}
-        {% for men in menus %}
-            <div class="col-lg-3 col-md-4 col-sm-6 col-xs-12 imagen-lista">
-                <div class="hover-module">
-                    <a href="{% url 'publicar-menu' %}/e/{{ men.id }}">
-                        <img class="img-responsive" src="{{ men.plato_mostrar.imagen.url }}" style="width:440px; height: 200px;" alt="">
-                        <hovernombrefood>{{ men.nombre|upper }}</hovernombrefood>
-                    </a>
+    {% if perfil %}
+        {% if menus %}
+            {% for men in menus %}
+                <div class="col-lg-3 col-md-4 col-sm-6 col-xs-12 imagen-lista">
+                    <div class="hover-module">
+                        <a href="{% url 'tienda' %}/{{ men.id }}">
+                            <img class="img-responsive" src="{{ men.plato_mostrar.imagen.url }}" style="width:440px; height: 200px;" alt="">
+                            <hovernombrefood>{{ men.nombre|upper }}</hovernombrefood>
+                        </a>
+                    </div>
                 </div>
-            </div>
-        {% endfor %}
+            {% endfor %}
+        {% else %}
+            <div class="alert alert-danger" role="alert">NO TIENE MENUS REGISTRADOS</div>
+        {% endif %}
     {% else %}
-        <div class="alert alert-danger" role="alert">NO TIENE MENUS REGISTRADOS</div>
+        {% if menus %}
+            {% for men in menus %}
+                <div class="col-lg-3 col-md-4 col-sm-6 col-xs-12 imagen-lista">
+                    <div class="hover-module">
+                        <a href="{% url 'publicar-menu' %}/e/{{ men.id }}">
+                            <img class="img-responsive" src="{{ men.plato_mostrar.imagen.url }}" style="width:440px; height: 200px;" alt="">
+                            <hovernombrefood>{{ men.nombre|upper }}</hovernombrefood>
+                        </a>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="alert alert-danger" role="alert">NO TIENE MENUS REGISTRADOS</div>
+        {% endif %}
     {% endif %}
 </div>
 
