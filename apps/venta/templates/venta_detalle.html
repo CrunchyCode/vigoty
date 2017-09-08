@@ -1,0 +1,83 @@
+{% extends 'master/base.html' %}
+{% load static %}
+
+{% block contenido %}
+
+<div class="row">
+    <table class="table table-hover table-condensed" width="100%">
+        <thead>
+            <tr>
+                <td colspan="6" style="text-align:center;"><h3>MI PEDIDO PARA {{ pedido.menu.fecha_disponibilidad|date:"d/m/Y" }}</h3></td>
+            </tr>
+            <tr>
+                <td style="text-align: left; width:50%;">Menu</td>
+                <td style="text-align: center; width:20%;">Fecha</td>
+                <td style="text-align: center; width:20%;">Hora</td>
+                <td style="text-align: center; width:10%;">Precio</td>
+                <td style="text-align: center; width:5%;">Cantidad</td>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>{{ pedido.menu.nombre }}</td>
+                <td style="text-align: center;">{{ pedido.menu.fecha_disponibilidad|date:"F" }}, {{ pedido.menu.fecha_disponibilidad|date:"l" }} {{ pedido.menu.fecha_disponibilidad|date:"d" }}</td>
+                <td style="text-align: center;">{{ pedido.menu.rango_hora }}</td>
+                <td style="text-align: center;">{{ pedido.menu.precio|floatformat:2 }}</td>
+                <td style="text-align: center;">{{ pedido.cantidad }}</td>
+            </tr>
+            {% for detalle in detalles %}
+                <tr>
+                    <td></td>
+                    <td style="text-align: center;">
+                        <div class="media">
+                            <img class="pull-left media-object" src="{{ detalle.plato.imagen.url }}" style="width: 72px; height: 72px;">
+                        </div>
+                    </td>
+                    <td style="text-align: center;">
+                        {{ detalle.plato.nombre|upper }}
+                    </td>
+                    <td style="text-align: center;">
+                        {{ detalle.plato.tipo_plato.nombre }}
+                    </td>
+                    <td style="text-align: center;" colspan="2">
+                        {{ detalle.plato.ingredientes }}
+                    </td>
+                </tr>
+            {% endfor %}
+            <tr>
+                <td colspan="3" style="text-align: right;"><h3>Total</h3></td>
+                <td colspan="2" class="text-right"><h3><strong>S/. {{ pedido.subtotal|floatformat:2 }}</strong></h3></td>
+            </tr>
+            <tr>
+                <td colspan="5" style="text-align:right;">
+                    <form method="post" id="formVenta">
+                        {% csrf_token %}
+                        <input type="hidden" name="tipo_operacion" id="tipo_operacion" value="">
+                        <input type="button" id="btn_cancelar" onclick="go(2)" value="Cancelar Pedido" class="btn btn-danger btn-lg">
+                        <input type="button" id="btn_pago" onclick="go(1)" value="Pagar Pedido" class="btn btn-success btn-lg">
+                    </form>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+{% endblock contenido %}
+
+{% block importJS %}
+    <script type="text/javascript">
+        function go(tipo){
+            if (tipo == 1) {
+                // PAGAR
+                $('#tipo_operacion').val('1');
+            }
+
+            if (tipo == 2) {
+                // CANCELAR
+                $('#tipo_operacion').val('2');
+            }
+
+            $('#formVenta').submit();
+        }
+    </script>
+{% endblock importJS %}

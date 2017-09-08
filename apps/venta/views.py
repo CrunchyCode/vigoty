@@ -1,4 +1,6 @@
 from datetime import datetime, timedelta
+from decimal import Decimal
+from django.db.models import Sum
 from django.http import Http404
 from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import get_object_or_404, render, redirect
@@ -68,12 +70,22 @@ class TiendaView(TemplateView):
 
 class TiendaProductoView(TemplateView):
     def get(self, request, *args, **kwargs):
+        '''
+            FALTA CUANDO CANTIDAD DE PEDIDOS DEL MENU ES IGUAL A
+            CANTIDAD MAXIMA QUE OFRECE EL COCINERO.
+        '''
         try:
             id_menu = kwargs['id']
 
             menu = get_object_or_404(Menu, pk=id_menu)
             detalles = DetalleMenuPlato.objects.filter(menu=menu)
-            nro_pedidos = Pedido.objects.filter(menu=menu).count()
+
+            nro_pedidos = Pedido.objects.filter(
+                menu=menu).aggregate(Sum('cantidad'))['cantidad__sum']
+
+            if not nro_pedidos:
+                nro_pedidos = 0
+
             cantidad_disponible = menu.cantidad_maxima + 1 - nro_pedidos
 
             selectHTML = ''
@@ -103,5 +115,103 @@ class TiendaProductoView(TemplateView):
                 'menu': menu,
                 'detalles': detalles,
                 'selectHTML': selectHTML,
+            }
+        )
+
+    def post(self, request, *args, **kwargs):
+        id_menu = kwargs['id']
+        men = get_object_or_404(Menu, pk=id_menu)
+
+        try:
+            # OBTENER ALGUN PEDIDO CON EL MENU SELECCIONADO CON ESTADO '1'
+            # ESTADO '1' => POR CONFIRMAR
+            pedido = Pedido.objects.get(
+                estado='1', comprador=request.user, menu=men
+            )
+        except ObjectDoesNotExist:
+            pedido = Pedido()
+            pedido.cantidad = 0
+            pedido.subtotal = 0
+            pedido.total = 0
+            pedido.comprador = request.user
+            pedido.menu = men
+            pedido.save()
+
+        pedido.menu = men
+        pedido.cantidad = int(request.POST.get('cantidad'))
+        pedido.subtotal = Decimal(pedido.cantidad * men.precio)
+        '''
+            FALTA CALCULAR RESTANDO COMISION DE PLATAFORMA
+        '''
+        pedido.total = Decimal(pedido.cantidad * men.precio)
+        pedido.save()
+
+        return redirect('venta')
+
+
+class VentaView(TemplateView):
+    def get(self, request, *args, **kwargs):
+        try:
+            pedido = Pedido.objects.get(estado='1', comprador=request.user)
+            detalles = DetalleMenuPlato.objects.filter(
+                menu=pedido.menu, estado='1'
+            )
+
+            return render(
+                request,
+                'venta_detalle.html',
+                {
+                    'pedido': pedido,
+                    'detalles': detalles,
+                }
+            )
+        except ObjectDoesNotExist:
+            return redirect('tienda')
+
+    def post(self, request, *args, **kwargs):
+        tipo = request.POST.get('tipo_operacion')
+
+        if tipo == '1':
+            # PAGAR PEDIDO (2)
+            try:
+                pedido = Pedido.objects.get(estado='1', comprador=request.user)
+                pedido.estado = '2'
+                pedido.save()
+
+                msg = 'Su Pedido fue pagado correctamente.'
+                messages.add_message(request, messages.SUCCESS, msg)
+            except ObjectDoesNotExist:
+                msg = 'No tiene algun Pedido pendiente.'
+                messages.add_message(request, messages.ERROR, msg)
+        elif tipo == '2':
+            # CANCELAR PEDIDO (eliminar)
+            try:
+                pedido = Pedido.objects.get(estado='1', comprador=request.user)
+                pedido.delete()
+
+                msg = 'Su Pedido fue cancelado correctamente.'
+                messages.add_message(request, messages.SUCCESS, msg)
+            except ObjectDoesNotExist:
+                msg = 'No tiene algun Pedido pendiente.'
+                messages.add_message(request, messages.ERROR, msg)
+        else:
+            msg = (
+                'Que desea hacer con su Pedido? ' +
+                'Procede a pagarlo y disfruta tu Menu.'
+            )
+            messages.add_message(request, messages.ERROR, msg)
+
+        return redirect('mis-pedidos')
+
+
+class MisPedidosView(TemplateView):
+    def get(self, request, *args, **kwargs):
+        pedidos = Pedido.objects.all().exclude(estado__in=['1'])
+
+        return render(
+            request,
+            'mis_pedidos.html',
+            {
+                'pedidos': pedidos
             }
         )

@@ -1,0 +1,52 @@
+{% extends 'master/base.html' %}
+{% load static %}
+
+{% block importCSS %}
+    <link href="{% static 'css/general/colorgraph.css' %}" rel="stylesheet" type="text/css"/>
+{% endblock importCSS %}
+
+{% block contenido %}
+
+<div class="row">
+	<div class="col-md-12">
+        <h1 align="center">MIS PEDIDOS</h1>
+        <hr class="colorgraph">
+    </div>
+    {% include 'master/mensaje.html' %}
+	{% if pedidos %}
+		<table class="table table-hover table-condensed table-bordered">
+	    	<tr>
+	    		<td style="text-align:center;">#</td>
+	    		<td style="text-align:center;">Fecha</td>
+	    		<td style="text-align:center;">Enviado a</td>
+	    		<td style="text-align:center;">Monto</td>
+	    		<td style="text-align:center;">Estado</td>
+	    		<td style="text-align:center;"></td>
+	    	</tr>
+	    	{% for pedido in pedidos %}
+	    		<tr>
+		    		<td style="text-align:center;">{{ forloop.counter }}</td>
+		    		<td style="text-align:center;">{{ pedido.fecha_realizado|date:"d" }} de {{ pedido.fecha_realizado|date:"F" }} del {{ pedido.fecha_realizado|date:"Y" }}</td>
+		    		<td>{{ pedido.comprador.first_name }} {{ pedido.comprador.last_name }}</td>
+		    		<td style="text-align:center;">{{ pedido.subtotal|floatformat:2 }}</td>
+		    		<td style="text-align:center;">
+		    			{% if pedido.estado == "1" %}
+		    				POR CONFIRMAR
+		    			{% elif pedido.estado == "2" %}
+		    				PAGADO
+		    			{% elif pedido.estado == "3" %}
+		    				CONFIRMACION COMPLETA
+		    			{% elif pedido.estado == "4" %}
+		    				SATISFECHO
+		    			{% endif %}
+		    		</td>
+		    		<td style="text-align:center;"><a href="{% url 'mis-pedidos' %}/{{ pedido.id }}">Ver Detalle</a></td>
+		    	</tr>
+	    	{% endfor %}
+	    </table>
+	{% else %}
+		<div class="alert alert-danger" role="alert">NO TIENE PEDIDOS REGISTRADOS</div>
+	{% endif %}
+</div>
+
+{% endblock contenido %}
