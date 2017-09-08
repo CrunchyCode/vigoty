@@ -1,9 +1,8 @@
 from datetime import datetime, date
-from django.shortcuts import render, redirect
+from django.shortcuts import get_object_or_404, render, redirect
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.staticfiles.templatetags.staticfiles import static
-from django.shortcuts import get_object_or_404
 from django.core.exceptions import ObjectDoesNotExist
 from django.views.generic import TemplateView
 from apps.inicio.models import Perfil
@@ -139,10 +138,18 @@ class PublicarMenuView(TemplateView):
         no_platos = None
         msg_estado = None
 
+        editable = True
+
         try:
             # EDICION DE MENU
             id_product = kwargs['id']
             menu = get_object_or_404(Menu, pk=id_product, creador=request.user)
+
+            hoy = datetime.now().date()
+
+            if hoy >= menu.fecha_disponibilidad:
+                editable = False
+
             detmen = DetalleMenuPlato.objects.filter(menu=menu, estado='1')
             # LISTA DE PLATOS DEL MENU A EDITAR
             lst = DetalleMenuPlato.objects.filter(
@@ -154,7 +161,7 @@ class PublicarMenuView(TemplateView):
                     'Su Menu esta siendo validado para su pronta publicacion.'
                 )
             elif menu.estado == '2':
-                msg_estado = 'Su Menu fue publicado.'
+                msg_estado = 'Su Menu fue aceptado y publicado correctamente.'
 
         except KeyError:
             # CREACION DE MENU
@@ -173,6 +180,7 @@ class PublicarMenuView(TemplateView):
                 'msg_estado': msg_estado,
                 'perfil': perfil,
                 'menu': menu,
+                'editable': editable,
             }
         )
 

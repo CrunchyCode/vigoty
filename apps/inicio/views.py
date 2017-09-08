@@ -95,6 +95,8 @@ class PerfilView(TemplateView):
             except Exception:
                 print("no hay imagen")
             perfil.save()
+            msg = 'Perfil editado correctamente!'
+            messages.add_message(request, messages.SUCCESS, msg)
         else:
             msg = 'Datos de Perfil incorrectos'
             messages.add_message(request, messages.ERROR, msg)

@@ -1,0 +1,277 @@
+/*!---------- 13. TABBED CONTENT ----------*/
+
+.tabs {
+    overflow: hidden;
+}
+
+.tabs li {
+    display: inline-block;
+    cursor: pointer;
+}
+
+.tabs.thirds {
+    width: 100%;
+}
+
+.tabs.thirds li {
+    width: 33.3333333%;
+}
+
+.tabs.thirds .tab-title {
+    width: 100%;
+}
+
+.button-tabs .tabs {
+    display: inline-block;
+    overflow: hidden;
+}
+
+.button-tabs .tabs>li {
+    margin-bottom: 8px;
+    float: left;
+}
+
+.button-tabs .tabs>li:last-child {
+    margin-right: 0;
+}
+
+.button-tabs .tab-title {
+    padding: 13px;
+    display: inline-block;
+    text-align: center;
+    min-width: 150px;
+    background: #f5f5f5;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    transition: all 0.3s ease;
+    -webkit-transition: all 0.3s ease;
+    -moz-transition: all 0.3s ease;
+}
+
+.bg-secondary .button-tabs .tab-title {
+    background: #eee;
+}
+
+.button-tabs .tab-title span {
+    font-family: "Raleway", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 12px;
+    line-height: 24px;
+    font-weight: 400;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-weight: 700;
+}
+
+.button-tabs .active .tab-title {
+    background: #51bf87;
+    color: #fff;
+}
+
+.button-tabs .tab-title:hover {
+    background: #eee;
+}
+
+.button-tabs .active .tab-title:hover {
+    background: #51bf87;
+}
+
+.button-tabs.vertical {
+    overflow: hidden;
+}
+
+.button-tabs.vertical>.tabs {
+    max-width: 30%;
+    float: left;
+}
+
+.button-tabs.vertical>.content {
+    padding-left: 3%;
+    max-width: 70%;
+    float: right;
+}
+
+.button-tabs.vertical>.tabs li, .button-tabs.vertical .tab-title {
+    width: 100%;
+}
+
+.button-tabs.vertical>.tabs li {
+    margin-bottom: 10px;
+}
+
+.bg-dark .button-tabs .tab-title span {
+    color: #222;
+}
+
+@media all and (max-width: 767px) {
+    .button-tabs .tabs li {
+        width: 49%;
+        margin-bottom: 15px;
+    }
+    .button-tabs.vertical .tabs, .button-tabs.vertical .content {
+        max-width: 100%;
+        width: 100%;
+        padding-left: 0;
+    }
+}
+
+.tabbed-content {
+    padding-top: 15px;
+}
+
+.tabbed-content .content>li {
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    -webkit-transition: all 0.3s ease;
+    -moz-transition: all 0.3s ease;
+    display: none;
+}
+
+.tabbed-content .content .active {
+    opacity: 1;
+    visibility: visible;
+    display: block;
+}
+
+.text-tabs .tabs {
+    padding-bottom: 16px;
+    border-bottom: 1px solid #ccc;
+    overflow: visible;
+}
+
+.text-tabs.no-border .tabs {
+    border-bottom: none;
+}
+
+.text-tabs .tab-title {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    transition: all 0.3s ease;
+    -webkit-transition: all 0.3s ease;
+    -moz-transition: all 0.3s ease;
+    padding: 0 24px;
+    opacity: 0.5;
+    position: relative;
+}
+
+.text-tabs .tab-title span {
+    font-family: "Raleway", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 12px;
+    line-height: 24px;
+    font-weight: 400;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-weight: 700;
+}
+
+.text-tabs .tab-title:after {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 1px;
+    background: #51bf87;
+    bottom: 10px;
+    opacity: 0;
+    transition: all 0.3s ease;
+    -webkit-transition: all 0.3s ease;
+    -moz-transition: all 0.3s ease;
+    bottom: -17px;
+    left: 0;
+}
+
+.text-tabs .active .tab-title {
+    opacity: 1;
+    color: #51bf87;
+}
+
+.bg-primary .text-tabs .tab-title:after {
+    background: #76769d;
+}
+
+.text-tabs .active .tab-title:after {
+    opacity: 1;
+}
+
+.text-tabs .tab-title:hover {
+    opacity: 1;
+}
+
+@media all and (max-width: 767px) {
+    .text-tabs .tabs {
+        padding-bottom: 0;
+    }
+    .text-tabs .tabs li {
+        width: 49%;
+        margin-bottom: 15px;
+    }
+    .text-tabs .tab-title:after {
+        display: none;
+    }
+    .text-tabs:not(.text-center) .tabs li:first-child .tab-title {
+        padding-left: 24px;
+    }
+}
+
+.icon-tabs .tabs li {
+    width: 24.5%;
+    margin-bottom: 24px;
+}
+
+.icon-tabs .tab-title {
+    text-align: center;
+    transition: all 0.3s ease;
+    -webkit-transition: all 0.3s ease;
+    -moz-transition: all 0.3s ease;
+    opacity: .5;
+}
+
+.icon-tabs .tab-title:hover {
+    opacity: 1;
+}
+
+.icon-tabs .active .tab-title {
+    color: #51bf87;
+    opacity: 1;
+}
+
+.icon-tabs .active .tab-title i {
+    color: #51bf87;
+}
+
+.image-bg .icon-tabs .active .tab-title i {
+    color: #fff;
+}
+
+.icon-tabs .tab-title i {
+    display: block;
+    margin-bottom: 16px;
+}
+
+.icon-tabs .tab-title span {
+    font-family: "Raleway", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 12px;
+    line-height: 24px;
+    font-weight: 400;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-weight: 700;
+}
+
+@media all and (max-width: 767px) {
+    .icon-tabs .tabs li {
+        margin-bottom: 16px;
+        margin-right: 0;
+        width: 49%;
+    }
+    .icon-tabs .tab-title i {
+        font-size: 32px;
+    }
+}

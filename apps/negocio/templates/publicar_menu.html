@@ -40,12 +40,16 @@
 			<div class="form-group">
 			    <label class="col-sm-3 control-label">Fecha Disponible:</label>
 			    <div class="col-sm-4">
-					<div class='input-group date' id='datetimepicker1'>
-                        <input id="fecha_disponibilidad" name="fecha_disponibilidad" type='text' class="form-control" value="asdasdasdsad"/>
-                        <span class="input-group-addon">
-                            <span class="glyphicon glyphicon-calendar"></span>
-                        </span>
-                    </div>
+                    {% if editable %}
+                        <div class='input-group date' id='datetimepicker1'>
+                            <input id="fecha_disponibilidad" name="fecha_disponibilidad" type='text' class="form-control" value="asdasdasdsad"/>
+                            <span class="input-group-addon">
+                                <span class="glyphicon glyphicon-calendar"></span>
+                            </span>
+                        </div>
+                    {% else %}
+                        {{ menu.fecha_disponibilidad|date:'d/m/Y' }}
+                    {% endif %}
 				</div>
 			</div>
 			<div class="form-group">
@@ -117,12 +121,13 @@
 		  	</div>
 		  	<div class="form-group">
 			    <div class="col-sm-offset-3 col-sm-10">
-                    {% if menu %}
-                        <input type="button" onclick="dataMenu()" value="Editar Menu" class="btn btn-fresh">
-                    {% else %}
-                        <input type="button" onclick="dataMenu()" value="Publicar Menu" class="btn btn-fresh">
+                    {% if editable %}
+                        {% if menu %}
+                            <input type="button" onclick="dataMenu()" value="Editar Menu" class="btn btn-fresh">
+                        {% else %}
+                            <input type="button" onclick="dataMenu()" value="Publicar Menu" class="btn btn-fresh">
+                        {% endif %}
                     {% endif %}
-
 			    </div>
 		  	</div>
 		</div>
