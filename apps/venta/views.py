@@ -1,13 +1,14 @@
+import json
 from datetime import datetime, timedelta
 from decimal import Decimal
 from django.db.models import Sum
-from django.http import Http404
+from django.http import Http404, HttpResponse
 from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import get_object_or_404, render, redirect
 from django.views.generic import TemplateView
 from django.contrib import messages
 from apps.inicio.models import Perfil
-from apps.negocio.models import Menu, DetalleMenuPlato
+from apps.negocio.models import Menu, DetalleMenuPlato, Plato
 from apps.metodos_globales import getDataDireccion
 from .models import Pedido
 
@@ -206,7 +207,8 @@ class VentaView(TemplateView):
 
 class MisPedidosView(TemplateView):
     def get(self, request, *args, **kwargs):
-        pedidos = Pedido.objects.all().exclude(estado__in=['1'])
+        pedidos = Pedido.objects.filter(
+            comprador=request.user).exclude(estado__in=['1'])
 
         return render(
             request,
@@ -215,3 +217,70 @@ class MisPedidosView(TemplateView):
                 'pedidos': pedidos
             }
         )
+
+
+class MisVentasView(TemplateView):
+    def get(self, request, *args, **kwargs):
+        menus = Menu.objects.filter(creador=request.user)
+
+        for menu in menus:
+            cantidad = Pedido.objects.filter(
+                        menu=menu).aggregate(Sum('cantidad'))['cantidad__sum']
+            if cantidad:
+                menu.cantidad_vendidos = cantidad
+            else:
+                menu.cantidad_vendidos = 0
+
+        return render(
+            request,
+            'mis_ventas.html',
+            {
+                'menus': menus
+            }
+        )
+
+    def post(self, request, *args, **kwargs):
+        if request.is_ajax():
+            id_menu = request.POST.get('menu')
+            get_object_or_404(Menu, id=id_menu)
+
+            if request.POST.get('opcion') == 'platos':
+                platos = Plato.objects.filter(
+                    id__in=DetalleMenuPlato.objects.filter(
+                        menu__id=id_menu,
+                        estado='1').values_list('plato__id', flat=True)
+                )
+
+                lst_platos = []
+                for pla in platos:
+                    dic = {}
+                    dic['nombre'] = pla.nombre
+                    dic['url_imagen'] = pla.imagen.url
+                    lst_platos.append(dic)
+
+                data = json.dumps(lst_platos)
+                return HttpResponse(data, content_type='application/json')
+            elif request.POST.get('opcion') == 'compradores':
+                compradores = Perfil.objects.filter(
+                    usuario__id__in=Pedido.objects.filter(
+                        menu__id=id_menu).values_list(
+                            'comprador__id', flat=True).exclude(estado='1')
+                )
+
+                lst_compradores = []
+                for com in compradores:
+                    dic = {}
+                    dic['nombre'] = com.get_nombre_completo()
+                    dic['documento'] = com.documento_identidad
+                    dic['cantidad'] = Pedido.objects.get(
+                                        menu__id=id_menu,
+                                        comprador=com.usuario
+                                    ).cantidad
+                    lst_compradores.append(dic)
+
+                data = json.dumps(lst_compradores)
+                return HttpResponse(data, content_type='application/json')
+            else:
+                raise Http404()
+        else:
+            return redirect('tienda')

@@ -1,0 +1,124 @@
+{% extends 'master/base.html' %}
+{% load static %}
+
+{% block importCSS %}
+    <link href="{% static 'css/general/colorgraph.css' %}" rel="stylesheet" type="text/css"/>
+{% endblock importCSS %}
+
+{% block contenido %}
+
+<div class="row">
+	<div class="col-md-12">
+        <h1 align="center">MIS VENTAS</h1>
+        <hr class="colorgraph">
+    </div>
+	{% if menus %}
+		<table class="table table-hover table-condensed table-bordered">
+	    	<tr>
+	    		<td style="text-align:center;">#</td>
+	    		<td style="text-align:center;">Menu</td>
+	    		<td style="text-align:center;">Fecha Entrega</td>
+	    		<td style="text-align:center;">Vendidos</td>
+	    		<td style="text-align:center;">Estado Actual</td>
+	    		<td style="text-align:center;">Opciones</td>
+	    	</tr>
+	    	{% for men in menus %}
+	    		<tr>
+		    		<td style="text-align:center;">{{ forloop.counter }}</td>
+		    		<td style="text-align:center;">{{ men.nombre }}</td>
+		    		<td style="text-align:center;">{{ men.fecha_disponibilidad }}</td>
+		    		<td style="text-align:center;">{{ men.cantidad_vendidos }}</td>
+		    		<td style="text-align:center;">
+		    			{% if men.disponible == "1" %}
+		    				DISPONIBLE
+		    			{% elif men.disponible == "2" %}
+		    				NO DISPONIBLE
+		    			{% endif %}
+		    		</td>
+		    		<td style="text-align:center;">
+		    			<a href="javascript:cargarOpcion('platos', {{ men.id }});" class="btn btn-primary">Ver Platos</a>
+		    			<a href="javascript:cargarOpcion('compradores', {{ men.id }});" class="btn btn-primary">Ver Compradores</a>
+		    		</td>
+		    	</tr>
+	    	{% endfor %}
+	    </table>
+	{% else %}
+		<div class="alert alert-danger" role="alert">NO TIENE MENUS REGISTRADOS</div>
+	{% endif %}
+</div>
+
+<div class="modal fade" id="myModal" data-backdrop="false">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 id="modal_title">Not yet made</h4>
+            </div>
+            <div class="modal-body" id="modal_body">Not yet made</div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock contenido %}
+
+{% block importJS %}
+	<script>
+		function cargarOpcion(opcion, menu){
+			$.ajax({
+		        type: "POST",
+		        url: "/mis-ventas",
+		        data: {
+		            csrfmiddlewaretoken: '{{ csrf_token }}',
+		            opcion: opcion,
+		            menu: menu
+		        },
+		        success: function(data) {
+		        	var html = '';
+		        	if(opcion == 'platos'){
+	        			$("#modal_title").html("LISTA DE PLATOS");
+	        			html += '<table class="table table-bordered" width="70%">';
+							html += '<tr>';
+								html += '<td style="text-align:center;">#</td>';
+								html += '<td style="text-align:center;">Nombre</td>';
+								html += '<td style="text-align:center;">Imagen</td>';
+							html += '</tr>';
+	        			for (var i = 0; i < data.length; i++) {
+			        		html += '<tr>';
+								html += '<td style="text-align:center;">' + (i+1) + '</td>';
+								html += '<td>' + data[i]['nombre'] + '</td>';
+								html += '<td style="text-align:center;"><img width="72px" heigth="72px" src="' + data[i]['url_imagen'] + '" alt="' + data[i]['nombre'] + '"></td>';
+							html += '</tr>';
+			        	}
+			        	html += '</table>';
+			        	$("#modal_body").html(html);
+			        	$('#myModal').modal('show');
+	        		}
+	        		if(opcion == 'compradores'){
+	        			$("#modal_title").html("LISTA DE COMPRADORES");
+	        			html += '<table class="table table-bordered" width="70%">';
+							html += '<tr>';
+								html += '<td style="text-align:center;">#</td>';
+								html += '<td style="text-align:center;">Nombre</td>';
+								html += '<td style="text-align:center;">Documento</td>';
+                                html += '<td style="text-align:center;">Cantidad</td>';
+							html += '</tr>';
+	        			for (var i = 0; i < data.length; i++) {
+			        		html += '<tr>';
+								html += '<td style="text-align:center;">' + (i+1) + '</td>';
+								html += '<td>' + data[i]['nombre'] + '</td>';
+								html += '<td style="text-align:center;">' + data[i]['documento'] + '</td>';
+                                html += '<td style="text-align:center;">' + data[i]['cantidad'] + '</td>';
+							html += '</tr>';
+			        	}
+			        	html += '</table>';
+			        	$("#modal_body").html(html);
+			        	$('#myModal').modal('show');
+	        		}
+
+		        }
+		    });
+		}
+	</script>
+{% endblock importJS %}

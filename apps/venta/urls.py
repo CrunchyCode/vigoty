@@ -1,5 +1,7 @@
 from django.conf.urls import url
-from .views import TiendaView, TiendaProductoView, VentaView, MisPedidosView
+from .views import (
+    TiendaView, TiendaProductoView, VentaView, MisPedidosView, MisVentasView
+)
 from django.contrib.auth.decorators import login_required
 
 urlpatterns = [
@@ -12,4 +14,6 @@ urlpatterns = [
     url(r'^venta$', login_required(VentaView.as_view()), name="venta"),
     url(r'^mis-pedidos$',
         login_required(MisPedidosView.as_view()), name="mis-pedidos"),
+    url(r'^mis-ventas$',
+        login_required(MisVentasView.as_view()), name="mis-ventas"),
 ]
