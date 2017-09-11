@@ -219,6 +219,30 @@ class MisPedidosView(TemplateView):
         )
 
 
+class PedidoDetalleView(TemplateView):
+    def get(self, request, *args, **kwargs):
+        id_pedido = kwargs['id']
+
+        try:
+            pedido = Pedido.objects.filter(
+                id=id_pedido, comprador=request.user).exclude(estado='1')[0]
+
+            detalles = DetalleMenuPlato.objects.filter(
+                menu=pedido.menu, estado='1'
+            )
+        except IndexError:
+            raise Http404()
+
+        return render(
+            request,
+            'pedido_detalle.html',
+            {
+                'pedido': pedido,
+                'detalles': detalles
+            }
+        )
+
+
 class MisVentasView(TemplateView):
     def get(self, request, *args, **kwargs):
         menus = Menu.objects.filter(creador=request.user)
