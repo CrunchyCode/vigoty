@@ -1,4 +1,5 @@
 from .base import *
+from celery.schedules import crontab
 
 DEBUG = False
 
@@ -31,6 +32,32 @@ DEFAULT_FILE_STORAGE = 'vigoty.s3.MediaStorage'
 MEDIA_URL = 'https://'+AWS_STORAGE_BUCKET_NAME+'.s3.amazonaws.com/'+MEDIAFILES_LOCATION+'/'
 
 AWS_QUERYSTRING_AUTH = False
+
+# CELERY SETTINGS
+CELERY_BROKER_URL = 'amqp://guest@localhost//'
+CELERY_ACCEPT_CONTENT = ['application/json']
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_TIMEZONE = 'America/Lima'
+# CELERYBEAT_SCHEDULE = {
+#     'task-number-one': {
+#         'task': 'negocio.tasks.prueba_celery',
+#         'schedule': crontab(hour=18, minute=32)
+#     },
+#     # 'task-number-two': {
+#     #     'task': 'app2.tasks.task_number_two',
+#     #     'schedule': crontab(minute=0, hour='*/3,10-19')
+#     # }
+# }
+# CELERY_TIMEZONE = 'America/Lima'
+
+# CELERYBEAT_SCHEDULE = {
+#     # executes every night at 4:50
+#     'every-night': {
+#         'task': 'prueba_celery',
+#         'schedule': crontab(hour=17, minute=10)
+#     }
+# }
 
 django.setup()
 LOGIN_URL = reverse('login')
