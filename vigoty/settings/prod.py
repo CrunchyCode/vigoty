@@ -1,3 +1,4 @@
+from __future__ import absolute_import, unicode_literals
 from .base import *
 from celery.schedules import crontab
 
@@ -34,30 +35,22 @@ MEDIA_URL = 'https://'+AWS_STORAGE_BUCKET_NAME+'.s3.amazonaws.com/'+MEDIAFILES_L
 AWS_QUERYSTRING_AUTH = False
 
 # CELERY SETTINGS
-CELERY_BROKER_URL = 'amqp://guest@localhost//'
+CELERY_BROKER_URL = 'amqp://guest:guest@localhost:5672//'
 CELERY_ACCEPT_CONTENT = ['application/json']
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_TIMEZONE = 'America/Lima'
-# CELERYBEAT_SCHEDULE = {
-#     'task-number-one': {
-#         'task': 'negocio.tasks.prueba_celery',
-#         'schedule': crontab(hour=18, minute=32)
-#     },
-#     # 'task-number-two': {
-#     #     'task': 'app2.tasks.task_number_two',
-#     #     'schedule': crontab(minute=0, hour='*/3,10-19')
-#     # }
-# }
-# CELERY_TIMEZONE = 'America/Lima'
-
-# CELERYBEAT_SCHEDULE = {
-#     # executes every night at 4:50
-#     'every-night': {
-#         'task': 'prueba_celery',
-#         'schedule': crontab(hour=17, minute=10)
-#     }
-# }
+CELERY_ENABLE_UTC = True
+CELERY_BEAT_SCHEDULE = {
+    'tarea-de-prueba': {
+        'task': 'tarea_prueba',
+        'schedule': crontab(minute=25)
+    },
+    'actualizar-estado-menu': {
+        'task': 'actualizar_estado_menu',
+        'schedule': crontab(hour=23)
+    },
+}
 
 django.setup()
 LOGIN_URL = reverse('login')

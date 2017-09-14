@@ -1,17 +1,21 @@
 from __future__ import absolute_import, unicode_literals
 from celery import task
+from datetime import datetime, timedelta
+from .models import Menu
 
 
-@task()
-def prueba_celery():
-    print('Ola k ase: desde CELERY!!')
-    return 'ola k ase CELERY!'
+@task(name='actualizar_estado_menu')
+def actualizar_estado_menu():
+    mañana = datetime.now() + timedelta(days=1)
+    mañana = mañana.date()
+    menus_activos = Menu.objects.filter(disponible='1', estado='2')
+
+    for menu in menus_activos:
+        if mañana > menu.fecha_disponibilidad:
+            menu.disponible = '2'   # NO DISPONIBLE
+            menu.save()
 
 
-# @periodic_task(
-#     run_every=(crontab(hour=17, minute=10)),
-#     name="segunda_prueba",
-#     ignore_result=True
-# )
-# def segunda_prueba():
-#     print('Ola k ase: desde CELERY!!')
+@task(name='tarea_prueba')
+def tarea_prueba():
+    print('LA TAREA DE PRUEBA')
