@@ -1,0 +1,46 @@
+version: '2'
+services:
+    db:
+        restart: always
+        image: postgres
+        env_file: config/.envPostgres
+    rabbitmq:
+        restart: always
+        image: rabbitmq
+        ports:
+            - "5672:5672"
+        hostname: "rabbit-docker"
+        env_file: config/.envRabbitmq
+    web: &web
+        restart: always
+        build: .
+        expose:
+            - "8000"
+        command:
+            bash -c "python manage.py makemigrations && python manage.py migrate && python manage.py collectstatic --noinput && gunicorn vigoty.wsgi -b 0.0.0.0:8000"
+        depends_on:
+            - db
+        volumes:
+            - /static:/static
+    celeryworker:
+        <<: *web
+        depends_on:
+            - rabbitmq
+            - db
+        command: "celery -A vigoty worker -l info"
+    celerybeat:
+        <<: *web
+        depends_on:
+            - rabbitmq
+            - db
+        command: "celery -A vigoty beat -l info"
+    nginx:
+        restart: always
+        image: nginx
+        ports:
+            - "88:9000"
+        volumes:
+            - ./nginx:/etc/nginx/conf.d
+            - /static:/static
+        depends_on:
+          - web

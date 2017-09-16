@@ -6,3 +6,7 @@ ADD requirements/base.txt requirements/prod.txt /app/
 RUN pip install -r prod.txt
 
 ADD . /app
+
+RUN chmod +x keys.sh
+
+ENTRYPOINT ./keys.sh

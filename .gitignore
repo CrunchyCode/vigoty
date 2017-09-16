@@ -4,3 +4,5 @@ __pycache__/
 .cache/
 media/
 celerybeat-schedule
+config/
+keys.sh
