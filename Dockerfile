@@ -9,4 +9,4 @@ ADD . /app
 
 RUN chmod +x keys.sh
 
-ENTRYPOINT ./keys.sh
+ENTRYPOINT ["source", "./keys.sh"]
