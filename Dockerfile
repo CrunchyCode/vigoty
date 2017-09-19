@@ -8,5 +8,3 @@ RUN pip install -r prod.txt
 ADD . /app
 
 RUN chmod +x keys.sh
-
-ENTRYPOINT ["source", "./keys.sh"]

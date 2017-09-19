@@ -26,16 +26,19 @@ AWS_STORAGE_BUCKET_NAME = 'vigoty-do'
 
 STATICFILES_LOCATION = 'static'
 STATICFILES_STORAGE = 'vigoty.s3.StaticStorage'
-STATIC_URL = 'https://'+AWS_STORAGE_BUCKET_NAME+'.s3.amazonaws.com/'+STATICFILES_LOCATION+'/'
+STATIC_URL = 'https://' + AWS_STORAGE_BUCKET_NAME + '.s3.amazonaws.com/' + STATICFILES_LOCATION + '/'
 
 MEDIAFILES_LOCATION = 'media'
 DEFAULT_FILE_STORAGE = 'vigoty.s3.MediaStorage'
-MEDIA_URL = 'https://'+AWS_STORAGE_BUCKET_NAME+'.s3.amazonaws.com/'+MEDIAFILES_LOCATION+'/'
+MEDIA_URL = 'https://' + AWS_STORAGE_BUCKET_NAME + '.s3.amazonaws.com/' + MEDIAFILES_LOCATION + '/'
 
 AWS_QUERYSTRING_AUTH = False
 
 # CELERY SETTINGS
-CELERY_BROKER_URL = 'amqp://guest:guest@localhost:5672//'
+CELERY_USER = os.getenv('RABBITMQ_DEFAULT_USER')
+CELERY_PASSWORD = os.getenv('RABBITMQ_DEFAULT_PASS')
+
+CELERY_BROKER_URL = 'amqp://' + CELERY_USER + ':' + CELERY_PASSWORD + '@rabbitmq:5672//'
 CELERY_ACCEPT_CONTENT = ['application/json']
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TASK_SERIALIZER = 'json'

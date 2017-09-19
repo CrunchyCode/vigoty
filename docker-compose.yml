@@ -7,8 +7,6 @@ services:
     rabbitmq:
         restart: always
         image: rabbitmq
-        ports:
-            - "5672:5672"
         hostname: "rabbit-docker"
         env_file: config/.envRabbitmq
     web: &web
@@ -17,11 +15,25 @@ services:
         expose:
             - "8000"
         command:
-            bash -c "python manage.py makemigrations && python manage.py migrate && python manage.py collectstatic --noinput && gunicorn vigoty.wsgi -b 0.0.0.0:8000"
+            bash -c "source ./keys.sh && python manage.py makemigrations && python manage.py migrate && python manage.py collectstatic --noinput && gunicorn vigoty.wsgi -b 0.0.0.0:8000"
         depends_on:
             - db
         volumes:
             - /static:/static
+    celeryworker:
+        <<: *web
+        depends_on:
+            - rabbitmq
+            - db
+        command:
+            bash -c "source ./keys.sh && celery -A vigoty worker -l info"
+    celerybeat:
+        <<: *web
+        depends_on:
+            - rabbitmq
+            - db
+        command:
+            bash -c "source ./keys.sh && celery -A vigoty beat -l info"
     nginx:
         restart: always
         image: nginx
