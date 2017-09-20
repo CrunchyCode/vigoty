@@ -13,7 +13,7 @@
     <form action="{% url 'tienda' %}" method="POST" class="form-inline" role="form">
         {% csrf_token %}
         <div align="center" class="col-md-12">
-            <h4>MENUS CERCA A: {{ perfil.direccion }}</h4>
+            <h4>MENUS CERCA A: </h4>
         </div>
         {% if misma %}
             <div align="center" class="col-xs-12 col-sm-12 col-md-12" id="caja_busqueda">
@@ -86,54 +86,5 @@
             $("#caja_busqueda").show();
             $("#btn-filtro").html("");
         }
-
-        {% if perfil.direccion != "" %}
-            $("#mi_direccion").html('<h4>{{ perfil.direccion|upper }}</h4>');
-            $("#caja_busqueda").hide();
-        {% else %}
-            $("#mi_direccion").hide();
-            $("#caja_busqueda").show();
-        {% endif %}
-
-        {% if misma %}
-            var pac_input = document.getElementById('busqueda');
-
-            (function pacSelectFirst(input){
-                // store the original event binding function
-                var _addEventListener = (input.addEventListener) ? input.addEventListener : input.attachEvent;
-
-                function addEventListenerWrapper(type, listener) {
-                    // Simulate a 'down arrow' keypress on hitting 'return' when no pac suggestion is selected,
-                    // and then trigger the original listener.
-
-                    if (type == "keydown") {
-                        var orig_listener = listener;
-                        listener = function (event) {
-                            var suggestion_selected = $(".pac-item-selected").length > 0;
-                            if (event.which == 13 && !suggestion_selected) {
-                                var simulated_downarrow = $.Event("keydown", {keyCode:40, which:40})
-                                orig_listener.apply(input, [simulated_downarrow]);
-                            }
-
-                            orig_listener.apply(input, [event]);
-                        };
-                    }
-
-                    // add the modified listener
-                    _addEventListener.apply(input, [type, listener]);
-                }
-
-                if (input.addEventListener)
-                    input.addEventListener = addEventListenerWrapper;
-                else if (input.attachEvent)
-                    input.attachEvent = addEventListenerWrapper;
-
-            })(pac_input);
-
-
-            $(function(){
-                var autocomplete = new google.maps.places.Autocomplete(pac_input);
-            });
-        {% endif %}
     </script>
 {% endblock importJS %}

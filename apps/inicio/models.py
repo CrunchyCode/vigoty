@@ -4,7 +4,6 @@ from django.contrib.auth.models import User
 
 class Perfil(models.Model):
     usuario = models.OneToOneField(User)
-    direccion = models.CharField(max_length=100)
     telefono = models.CharField(max_length=15)
     documento_identidad = models.CharField(max_length=8)
     imagen_perfil = models.ImageField(
@@ -13,3 +12,25 @@ class Perfil(models.Model):
 
     def get_nombre_completo(self):
         return self.usuario.first_name + ' ' + self.usuario.last_name
+
+
+class Direccion(models.Model):
+    direccion = models.CharField(max_length=140)
+    referencia = models.TextField()
+    street_number = models.CharField(max_length=6, blank=True, null=True)
+    route = models.CharField(max_length=45, blank=True, null=True)
+    locality = models.CharField(max_length=45, blank=True, null=True)
+    administrative_area_level_2 = models.CharField(
+                                        max_length=45, blank=True, null=True
+                                    )
+    administrative_area_level_1 = models.CharField(
+                                        max_length=45, blank=True, null=True
+                                    )
+    country = models.CharField(max_length=45, blank=True, null=True)
+    postal_code = models.CharField(max_length=15, blank=True, null=True)
+    latitude = models.CharField(max_length=15)
+    longitude = models.CharField(max_length=15)
+    usuario = models.OneToOneField(User)
+
+    def __str__(self):
+        return self.direccion

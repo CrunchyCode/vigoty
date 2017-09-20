@@ -32,74 +32,63 @@
 			<!-- END SIDEBAR USER TITLE -->
 			<!-- SIDEBAR MENU -->
 			<div class="profile-usermenu">
-				<ul class="nav">
-					<li class="active">
-						<a href="#">
-						<i class="glyphicon glyphicon-home"></i>
-						Mis Datos </a>
-					</li>
-				</ul>
+				<ul class="nav nav-pills nav-stacked admin-menu" >
+		            <li class="active"><a href="" data-target-id="perfil"><i class="fa fa-user-o"></i> Perfil</a></li>
+		            <li><a href="" data-target-id="mis-direcciones"><i class="fa fa-address-book-o"></i> Mis direcciones</a></li>
+		        </ul>
 			</div>
 			<!-- END MENU -->
 		</div>
 	</div>
 	<div class="col-md-9">
-        <div class="profile-content">
-		   <div id="misdatos">
-		   		<form method="POST" action="{% url 'perfil' %}" enctype="multipart/form-data">
-		   			{% csrf_token %}
-		   			<div class="alert alert-info" role="alert">
-					  	Se recomienda seleccionar su direccion mas cercana a las que ofrece GOOGLE. <br>
-					  	De esta manera la busqueda de MENUS sera mas precisa.
+        <div class="admin-content" id="perfil">
+			<form method="POST" action="{% url 'perfil' %}" enctype="multipart/form-data">
+	   			{% csrf_token %}
+	   			<div class="alert alert-info" role="alert">
+				  	Se recomienda seleccionar su direccion mas cercana a las que ofrece GOOGLE. <br>
+				  	De esta manera la busqueda de MENUS sera mas precisa.
+				</div>
+                {% if perfil.telefono == "" %}
+                	<div class="alert alert-danger" role="alert">
+					  	<span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+					  	Ingrese un numero de celular.
 					</div>
-		   			{% if perfil.direccion == "" %}
-		   				<div class="alert alert-danger" role="alert">
-						  	<span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
-						  	Ingrese una direccion por defecto.
-						</div>
-		   			{% endif %}
-		   			<div class="form-group">
-		   				<label for="">Mi Direccion:</label>
-	                    <input type="text" name="direccion" id="direccion" class="form-control input-lg" placeholder="Direccion" tabindex="1" value="{{ perfil.direccion }}">
-	                </div>
-	                {% if perfil.telefono == "" %}
-	                	<div class="alert alert-danger" role="alert">
-						  	<span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
-						  	Ingrese un numero de celular.
-						</div>
-	                {% endif %}
-	                <div class="form-group">
-		   				<label for="">Celular:</label>
-	                    <input type="text" name="telefono" id="telefono" class="form-control input-lg" placeholder="Celular" tabindex="1" value="{{ perfil.telefono }}">
-	                </div>
-	                {% if perfil.documento_identidad == "" %}
-	                	<div class="alert alert-danger" role="alert">
-						  	<span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
-						  	Ingrese su numero de Documento de Identidad. (Con esto se identificara ante el Cocinero)
-						</div>
-	                {% endif %}
-	                <div class="form-group">
-		   				<label for="">Documento Identidad:</label>
-	                    <input type="text" name="documento_identidad" id="documento_identidad" class="form-control input-lg" placeholder="Documento Identidad" tabindex="1" value="{{ perfil.documento_identidad }}">
-	                </div>
-	                <div class="form-group">
-					    <label for="">Imagen Perfil:</label>
-					    <input type='file' id="imagen_perfil" name="imagen_perfil"/>
-				  	</div>
-	                <div class="row">
-	                    <div class="col-xs-12 col-md-12">
-	                        <input type="submit" value="Guardar" class="btn btn-primary btn-block btn-lg" tabindex="2">
-	                    </div>
-	                </div>
-		   		</form>
-		   </div>
+                {% endif %}
+                <div class="form-group">
+	   				<label for="">Celular:</label>
+                    <input type="text" name="telefono" id="telefono" class="form-control input-lg" placeholder="Celular" tabindex="1" value="{{ perfil.telefono }}">
+                </div>
+                {% if perfil.documento_identidad == "" %}
+                	<div class="alert alert-danger" role="alert">
+					  	<span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+					  	Ingrese su numero de Documento de Identidad. (Con esto se identificara ante el Cocinero)
+					</div>
+                {% endif %}
+                <div class="form-group">
+	   				<label for="">Documento Identidad:</label>
+                    <input type="text" name="documento_identidad" id="documento_identidad" class="form-control input-lg" placeholder="Documento Identidad" tabindex="1" value="{{ perfil.documento_identidad }}">
+                </div>
+                <div class="form-group">
+				    <label for="">Imagen Perfil:</label>
+				    <input type='file' id="imagen_perfil" name="imagen_perfil"/>
+			  	</div>
+                <div class="row">
+                    <div class="col-xs-12 col-md-12">
+                        <input type="submit" value="Guardar" class="btn btn-primary btn-block btn-lg" tabindex="2">
+                    </div>
+                </div>
+	   		</form>
         </div>
+		<div class="admin-content" id="mis-direcciones">
+			<h1>ola k ase</h1>
+		</div>
 	</div>
 </div>
 
 {% endblock contenido %}
 
 {% block importJS %}
+	<script src="{% static 'js/general/perfil.js' %}"></script>
 	<script src="https://maps.google.com/maps/api/js?libraries=places&key=AIzaSyADq3lOH4snPUnHyJMhlOJDkw8Lf80qS98"></script>
     <script>
         var pac_input = document.getElementById('direccion');

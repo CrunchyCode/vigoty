@@ -1,6 +1,6 @@
 from django import forms
 from django.contrib.auth.models import User
-from .models import Perfil
+from .models import Perfil, Direccion
 
 
 class UsuarioForm(forms.ModelForm):
@@ -12,4 +12,10 @@ class UsuarioForm(forms.ModelForm):
 class PerfilForm(forms.ModelForm):
     class Meta:
         model = Perfil
-        fields = ('direccion', 'telefono', 'documento_identidad')
+        fields = ('telefono', 'documento_identidad')
+
+
+class DireccionForm(forms.ModelForm):
+    class Meta:
+        model = Direccion
+        fields = ('direccion', 'referencia')

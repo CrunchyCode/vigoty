@@ -21,13 +21,13 @@ class TiendaView(TemplateView):
 
         try:
             perfil = Perfil.objects.get(usuario=request.user)
-            if perfil.direccion == '':
-                msg = (
-                    'Registre una direccion en su Perfil, para mostrar ' +
-                    'los menus mas cercanos a usted.'
-                )
-                messages.add_message(request, messages.ERROR, msg)
-                return redirect('perfil')
+            # if perfil.direccion == '':
+            #     msg = (
+            #         'Registre una direccion en su Perfil, para mostrar ' +
+            #         'los menus mas cercanos a usted.'
+            #     )
+            #     messages.add_message(request, messages.ERROR, msg)
+            #     return redirect('perfil')
         except ObjectDoesNotExist:
             msg = 'Perfil inexistente. Complete sus datos.'
             messages.add_message(request, messages.ERROR, msg)
@@ -52,7 +52,8 @@ class TiendaView(TemplateView):
             except ValueError:
                 raise Http404()
 
-        menus = getDataDireccion(perfil.direccion, menus, fec_filtro)
+        # menus = getDataDireccion(perfil.direccion, menus, fec_filtro)
+        menus = None
 
         return render(
             request,

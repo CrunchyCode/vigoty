@@ -15,7 +15,7 @@ services:
         expose:
             - "8000"
         command:
-            bash -c "source ./keys.sh && python manage.py makemigrations && python manage.py migrate && python manage.py collectstatic --noinput && gunicorn vigoty.wsgi -b 0.0.0.0:8000"
+            bash -c "source ./keys.sh && python manage.py makemigrations --settings=vigoty.settings.prod && python manage.py migrate --settings=vigoty.settings.prod && python manage.py collectstatic --settings=vigoty.settings.prod --noinput && gunicorn vigoty.wsgi -b 0.0.0.0:8000"
         depends_on:
             - db
         volumes:
