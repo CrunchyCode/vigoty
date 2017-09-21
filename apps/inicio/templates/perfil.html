@@ -3,6 +3,7 @@
 
 {% block importCSS %}
 	<link href="{% static 'css/general/profile.css' %}" rel="stylesheet" type="text/css"/>
+	<link href="{% static 'css/general/colorgraph.css' %}" rel="stylesheet" type="text/css"/>
 {% endblock importCSS %}
 
 {% block contenido %}
@@ -34,7 +35,7 @@
 			<div class="profile-usermenu">
 				<ul class="nav nav-pills nav-stacked admin-menu" >
 		            <li class="active"><a href="" data-target-id="perfil"><i class="fa fa-user-o"></i> Perfil</a></li>
-		            <li><a href="" data-target-id="mis-direcciones"><i class="fa fa-address-book-o"></i> Mis direcciones</a></li>
+		            <li><a href="" data-target-id="mis-direcciones"><i class="fa fa-address-book-o"></i> Direcciones</a></li>
 		        </ul>
 			</div>
 			<!-- END MENU -->
@@ -42,12 +43,10 @@
 	</div>
 	<div class="col-md-9">
         <div class="admin-content" id="perfil">
+			<h2 align="center">Datos Personales</h2>
+			<hr class="colorgraph">
 			<form method="POST" action="{% url 'perfil' %}" enctype="multipart/form-data">
 	   			{% csrf_token %}
-	   			<div class="alert alert-info" role="alert">
-				  	Se recomienda seleccionar su direccion mas cercana a las que ofrece GOOGLE. <br>
-				  	De esta manera la busqueda de MENUS sera mas precisa.
-				</div>
                 {% if perfil.telefono == "" %}
                 	<div class="alert alert-danger" role="alert">
 					  	<span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
@@ -80,7 +79,50 @@
 	   		</form>
         </div>
 		<div class="admin-content" id="mis-direcciones">
-			<h1>ola k ase</h1>
+			<h2 align="center">Nueva Dirección</h2>
+			<hr class="colorgraph">
+			<div class="alert alert-info" role="alert">
+				Se recomienda seleccionar su direccion mas cercana a las que ofrece GOOGLE. <br>
+				De esta manera la busqueda de MENUS sera mas precisa.
+			</div>
+			<form method="POST" action="{% url 'direccion' %}">
+				{% csrf_token %}
+				<div class="col-md-6">
+					<div class="form-group">
+		   				<label for="">Dirección:</label>
+	                    <input type="text" name="direccion_texto" id="direccion_texto" class="form-control input-lg" placeholder="Dirección" tabindex="1" value="">
+	                </div>
+					<div class="form-group">
+		   				<label for="">Referencia:</label>
+	                    <textarea name="referencia" class="form-control" rows="8" cols="80" style="resize:none;" placeholder="Referencia"></textarea>
+	                </div>
+				</div>
+				<div class="col-md-6">
+					<div id="map" style="height:300px;width:100%;"></div>
+				</div>
+				<div class="row">
+                    <div class="col-xs-12 col-md-12">
+                        <input type="submit" value="Guardar" class="btn btn-primary btn-block btn-lg" tabindex="2">
+                    </div>
+                </div>
+			</form>
+			<h2 align="center">Direcciones Registradas</h2>
+			<hr class="colorgraph">
+			<table class="table">
+				<tr>
+					<td>Dirección</td>
+					<td>Opciones</td>
+				</tr>
+				{% for direccion in direcciones %}
+					<tr>
+						<td>{{ direccion.direccion_texto }}</td>
+						<td>
+							<button type="button" name="button" class="btn btn-xs btn-warning">Ver</button>
+							<button type="button" name="button" class="btn btn-xs btn-warning">Eliminar</button>
+						</td>
+					</tr>
+				{% endfor %}
+			</table>
 		</div>
 	</div>
 </div>
@@ -91,7 +133,7 @@
 	<script src="{% static 'js/general/perfil.js' %}"></script>
 	<script src="https://maps.google.com/maps/api/js?libraries=places&key=AIzaSyADq3lOH4snPUnHyJMhlOJDkw8Lf80qS98"></script>
     <script>
-        var pac_input = document.getElementById('direccion');
+        var pac_input = document.getElementById('direccion_texto');
 
         (function pacSelectFirst(input){
             // store the original event binding function
@@ -129,5 +171,43 @@
         $(function(){
             var autocomplete = new google.maps.places.Autocomplete(pac_input);
         });
+    </script>
+    <script>
+		function initMap() {
+			var geocoder = new google.maps.Geocoder();
+			var address = $("#direccion_texto").val();
+			geocoder.geocode({'address': address}, function(results, status) {
+				if (status == 'OK') {
+					var map = new google.maps.Map(document.getElementById('map'), {
+						zoom: 16,
+						center: results[0].geometry.location
+					});
+					var marker = new google.maps.Marker({
+						map: map,
+						position: results[0].geometry.location
+					});
+				} else {
+					$("#map").html("");
+				}
+			});
+		}
+
+		$("#direccion_texto").focusout(function() {
+			if ($("#direccion_texto").val() != "") {
+				initMap();
+			}
+		});
+
+		map.addListener('click', function(e) {
+	    	placeMarker(e.latLng, map);
+		});
+
+		function placeMarker(position, map) {
+		    var marker = new google.maps.Marker({
+		        position: position,
+		        map: map
+		    });
+		    map.panTo(position);
+		}
     </script>
 {% endblock importJS %}

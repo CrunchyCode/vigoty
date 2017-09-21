@@ -5,11 +5,11 @@ from django.contrib import messages
 from django.contrib.staticfiles.templatetags.staticfiles import static
 from django.core.exceptions import ObjectDoesNotExist
 from django.views.generic import TemplateView
-from apps.inicio.models import Perfil
+from apps.inicio.models import Perfil, Direccion
 from apps.venta.models import Pedido
-from apps.metodos_globales import set_data_menu
 from .models import Plato, TipoPlato, TipoEntrega, Menu, DetalleMenuPlato
 from .forms import PlatoForm, MenuForm
+from apps.metodos_globales import get_lat_long
 
 
 class ListaPlatosView(TemplateView):
@@ -80,6 +80,7 @@ class PlatoView(TemplateView):
 
 class PublicarMenuView(TemplateView):
     def get(self, request, *args, **kwargs):
+        direcciones = Direccion.objects.filter(usuario=request.user)
         tipos_entrega = TipoEntrega.objects.all()
         perfil = get_object_or_404(Perfil, usuario=request.user)
 
@@ -181,6 +182,7 @@ class PublicarMenuView(TemplateView):
                 'perfil': perfil,
                 'menu': menu,
                 'editable': editable,
+                'direcciones': direcciones,
             }
         )
 
@@ -209,28 +211,18 @@ class PublicarMenuView(TemplateView):
                         request.POST.get('h_fin')
                     )
 
-                    if request.POST.get('rbt_direccion') == '1':
-                        # MI DIRECCION
-                        perfil = Perfil.objects.get(
-                            usuario__id=request.user.id
-                        )
-                        menu = set_data_menu(perfil.direccion, menu)
+                    try:
+                        id_direccion = request.POST.get('direccion')
+                        direccion = Direccion.objects.get(id=id_direccion)
+                        menu.direccion = direccion
 
-                    elif request.POST.get('rbt_direccion') == '2':
-                        # OTRA DIRECCION
-                        menu = set_data_menu(
-                            request.POST.get('direccion'), menu
-                        )
-
-                    else:
-                        # CUANDO USUARIO NO REGISTRA SU DIRECCION EN EL PERFIL
-                        menu = set_data_menu(
-                            request.POST.get('direccion'), menu
-                        )
-
-                        perfil = Perfil.objects.get(usuario=request.user)
-                        perfil.direccion = request.POST.get('direccion')
-                        perfil.save()
+                        lat_long = get_lat_long(direccion.direccion_texto)
+                        menu.lat = lat_long['lat']
+                        menu.lng = lat_long['lng']
+                    except ObjectDoesNotExist:
+                        msg = 'Dirección no existe!'
+                        messages.add_message(request, messages.ERROR, msg)
+                        return redirect('publicar-menu')
 
                     menu.save()
 
@@ -279,22 +271,18 @@ class PublicarMenuView(TemplateView):
                     request.POST.get('h_fin')
                 )
 
-                if request.POST.get("rbt_direccion") == "1":
-                    # MI DIRECCION
-                    perfil = Perfil.objects.get(usuario__id=request.user.id)
-                    menu = set_data_menu(perfil.direccion, menu)
+                try:
+                    id_direccion = request.POST.get('direccion')
+                    direccion = Direccion.objects.get(id=id_direccion)
+                    menu.direccion = direccion
 
-                elif request.POST.get("rbt_direccion") == "2":
-                    # OTRA DIRECCION
-                    menu = set_data_menu(request.POST.get("direccion"), menu)
-
-                else:
-                    # CUANDO USUARIO NO REGISTRA SU DIRECCION EN EL PERFIL
-                    menu = set_data_menu(request.POST.get("direccion"), menu)
-
-                    perfil = Perfil.objects.get(usuario=request.user)
-                    perfil.direccion = request.POST.get("direccion")
-                    perfil.save()
+                    lat_long = get_lat_long(direccion.direccion_texto)
+                    menu.lat = lat_long['lat']
+                    menu.lng = lat_long['lng']
+                except ObjectDoesNotExist:
+                    msg = 'Dirección no existe!'
+                    messages.add_message(request, messages.ERROR, msg)
+                    return redirect('publicar-menu')
 
                 if menu is not None:
                     menu.save()

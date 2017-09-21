@@ -100,23 +100,20 @@
 		  	<div class="form-group">
 			    <label class="col-sm-3 control-label">Lugar:</label>
 			    <div class="col-sm-9">
-			    	{% if perfil.direccion != "" %}
-				    	<label class="radio-inline">
-						  	<input type="radio" name="rbt_direccion" value="1" checked> Mi direccion
-						</label>
-			    		<label class="radio-inline">
-						  	<input type="radio" name="rbt_direccion" value="2"> Otra direccion
-						</label>
-			      		<br>
-			      		<span id="span_mi_direccion">
-			      			<h4>{{ perfil.direccion }}</h4>
-			      		</span>
-			      		<span id="span_otra_direccion">
-			      			<input type="text" name="direccion" id="direccion" value="" class="form-control" placeholder="Ingrese direccion" required>
-			      		</span>
-			    	{% else %}
-			    		<input type="text" name="direccion" id="direccion" value="" class="form-control" placeholder="Ingrese direccion" required>
-			    	{% endif %}
+                    <select class="form-control" name="direccion">
+                        <option value="">Seleccione Dirección</option>
+                        {% for direccion in direcciones %}
+                            {% if editable %}
+                                {% if direccion.id == menu.direccion.id %}
+                                    <option value="{{ direccion.id }}" selected>{{ direccion.direccion_texto }}</option>
+                                {% else %}
+                                    <option value="{{ direccion.id }}">{{ direccion.direccion_texto }}</option>
+                                {% endif %}
+                            {% else %}
+                                <option value="{{ direccion.id }}">{{ direccion.direccion_texto }}</option>
+                            {% endif %}
+    			    	{% endfor %}
+                    </select>
 			    </div>
 		  	</div>
 		  	<div class="form-group">
@@ -237,18 +234,6 @@
         {% if perfil.direccion != "" %}
             $("#span_otra_direccion").hide();
         {% endif %}
-
-        $('input[type=radio][name=rbt_direccion]').change(function() {
-            if (this.value == '1') {
-                // MI DIRECCION
-                $("#span_mi_direccion").show();
-                $("#span_otra_direccion").hide();
-            } else if (this.value == '2') {
-                // OTRA DIRECCION
-                $("#span_mi_direccion").hide();
-                $("#span_otra_direccion").show();
-            }
-        });
 
         function dataMenu() {
             var $questions = $(".radios");

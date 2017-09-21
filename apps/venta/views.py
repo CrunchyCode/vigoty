@@ -7,7 +7,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import get_object_or_404, render, redirect
 from django.views.generic import TemplateView
 from django.contrib import messages
-from apps.inicio.models import Perfil
+from apps.inicio.models import Perfil, Direccion
 from apps.negocio.models import Menu, DetalleMenuPlato, Plato
 from apps.metodos_globales import getDataDireccion
 from .models import Pedido
@@ -20,17 +20,12 @@ class TiendaView(TemplateView):
             fecha = kwargs['date']
 
         try:
-            perfil = Perfil.objects.get(usuario=request.user)
-            # if perfil.direccion == '':
-            #     msg = (
-            #         'Registre una direccion en su Perfil, para mostrar ' +
-            #         'los menus mas cercanos a usted.'
-            #     )
-            #     messages.add_message(request, messages.ERROR, msg)
-            #     return redirect('perfil')
+            direccion = Direccion.objects.get(
+                usuario=request.user, activo=True, seleccionada=True
+            ).direccion_texto
         except ObjectDoesNotExist:
-            msg = 'Perfil inexistente. Complete sus datos.'
-            messages.add_message(request, messages.ERROR, msg)
+            msg = 'Registre al menos una dirección.'
+            messages.add_message(request, messages.WARNING, msg)
             return redirect('perfil')
 
         menus = Menu.objects.all()
@@ -52,15 +47,14 @@ class TiendaView(TemplateView):
             except ValueError:
                 raise Http404()
 
-        # menus = getDataDireccion(perfil.direccion, menus, fec_filtro)
-        menus = None
+        menus = getDataDireccion(direccion, menus, fec_filtro)
 
         return render(
             request,
             'tienda.html',
             {
                 'menus': menus,
-                'perfil': perfil,
+                'direccion': direccion,
                 'fechas': fechas,
                 'fec_filtro': fec_filtro
             }

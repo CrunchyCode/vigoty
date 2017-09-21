@@ -15,7 +15,7 @@ class Perfil(models.Model):
 
 
 class Direccion(models.Model):
-    direccion = models.CharField(max_length=140)
+    direccion_texto = models.CharField(max_length=140)
     referencia = models.TextField()
     street_number = models.CharField(max_length=6, blank=True, null=True)
     route = models.CharField(max_length=45, blank=True, null=True)
@@ -28,9 +28,11 @@ class Direccion(models.Model):
                                     )
     country = models.CharField(max_length=45, blank=True, null=True)
     postal_code = models.CharField(max_length=15, blank=True, null=True)
-    latitude = models.CharField(max_length=15)
-    longitude = models.CharField(max_length=15)
-    usuario = models.OneToOneField(User)
+    lat = models.DecimalField(max_digits=10, decimal_places=7)
+    lng = models.DecimalField(max_digits=10, decimal_places=7)
+    usuario = models.ForeignKey(User)
+    activo = models.BooleanField(default=True)
+    seleccionada = models.BooleanField(default=False)
 
     def __str__(self):
-        return self.direccion
+        return self.direccion_texto

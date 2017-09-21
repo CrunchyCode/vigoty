@@ -28,19 +28,7 @@ def getDataDireccion(direccion, menus, fecha):
         radius = settings.GLOBAL_DISTANCIA_RADIO
         near = nearby_locations(latitude, longitude, radius, use_miles=False)
         ids = [x for x in near]
-
         menus = menus.filter(fecha_disponibilidad=fecha)
-
-        for x in json_lat_lng['results'][0]['address_components']:
-            if x['types'][0] == 'country':
-                menus = menus.filter(country__icontains=x['long_name'])
-
-            if x['types'][0] == 'administrative_area_level_2':
-                cadena = x['long_name'].lower().replace(
-                    'province', '').replace(' ', '')
-                menus = menus.filter(
-                    administrative_area_level_2__icontains=cadena
-                )
 
         # SOLO MENUS VALIDADOS
         # ESTADO '2' => PUBLICADO
@@ -57,7 +45,7 @@ def getDataDireccion(direccion, menus, fecha):
                 if near[menu.id] == 0:
                     menu.distancia = ''
                 else:
-                    menu.distancia = str((near[menu.id])) + ' KM'
+                    menu.distancia = str(near[menu.id]) + ' KM'
     else:
         # LA DIRECCION RECIBIDA NO ES UNA DE LAS QUE OFRECE GOOGLE
         menus = None
@@ -65,10 +53,36 @@ def getDataDireccion(direccion, menus, fecha):
     return menus
 
 
-# SETEAR DATOS DE LOCALIZACION EN OBJETO MENU
-def set_data_menu(direccion, menu):
+def get_lat_long(direccion):
     api_key = settings.GOOGLE_GEOCODE_KEY
     address = str(urlencode({'address': direccion}))
+    url_latlng = (
+        'https://maps.googleapis.com/maps/api/geocode/json?' +
+        address +
+        '&key=' +
+        api_key
+    )
+    response = urlopen(url_latlng)
+    data = response.read()
+    json_lat_lng = json.loads(data.decode('utf8'))
+
+    obj = {}
+    if len(json_lat_lng['results']) > 0:
+        longitude = json_lat_lng['results'][0]['geometry']['location']['lng']
+        latitude = json_lat_lng['results'][0]['geometry']['location']['lat']
+
+        obj['lat'] = str(latitude)
+        obj['lng'] = str(longitude)
+    else:
+        obj = None
+
+    return obj
+
+
+# SETEAR DATOS DE LOCALIZACION EN OBJETO
+def set_data_obj(obj):
+    api_key = settings.GOOGLE_GEOCODE_KEY
+    address = str(urlencode({'address': obj.direccion_texto}))
     url_latlng = (
         'https://maps.googleapis.com/maps/api/geocode/json?' +
         address +
@@ -83,32 +97,31 @@ def set_data_menu(direccion, menu):
         longitude = json_lat_lng['results'][0]['geometry']['location']['lng']
         latitude = json_lat_lng['results'][0]['geometry']['location']['lat']
 
-        menu.lat = str(latitude)
-        menu.lng = str(longitude)
+        obj.lat = str(latitude)
+        obj.lng = str(longitude)
         for x in json_lat_lng['results'][0]['address_components']:
             for y in x['types']:
                 if y == 'country':
-                    menu.country = str(x['long_name'])
+                    obj.country = str(x['long_name'])
                 elif y == 'administrative_area_level_2':
-                    menu.administrative_area_level_2 = str(x['long_name'])
+                    obj.administrative_area_level_2 = str(x['long_name'])
                 elif y == 'administrative_area_level_1':
-                    menu.administrative_area_level_1 = str(x['long_name'])
+                    obj.administrative_area_level_1 = str(x['long_name'])
                 elif y == 'locality':
-                    menu.locality = str(x['long_name'])
+                    obj.locality = str(x['long_name'])
                 elif y == 'route':
-                    menu.route = str(x['long_name'])
+                    obj.route = str(x['long_name'])
                 elif y == 'street_number':
-                    menu.street_number = str(x['long_name'])
+                    obj.street_number = str(x['long_name'])
                 elif y == 'postal_code':
-                    menu.postal_code = str(x['long_name'])
+                    obj.postal_code = str(x['long_name'])
                 else:
                     pass
 
-        menu.direccion_texto = direccion
     else:
-        menu = None
+        obj = None
 
-    return menu
+    return obj
 
 
 # PARA OBTENER LOS MENUS MAS CERCANOS SEGUN LATITUD Y LONGITUD

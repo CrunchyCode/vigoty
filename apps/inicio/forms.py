@@ -18,4 +18,4 @@ class PerfilForm(forms.ModelForm):
 class DireccionForm(forms.ModelForm):
     class Meta:
         model = Direccion
-        fields = ('direccion', 'referencia')
+        fields = ('direccion_texto', 'referencia')

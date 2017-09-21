@@ -5,8 +5,9 @@ from django.contrib import messages
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.models import User
 from django.contrib.auth.hashers import make_password
-from .forms import UsuarioForm, PerfilForm
-from .models import Perfil
+from .forms import UsuarioForm, PerfilForm, DireccionForm
+from .models import Perfil, Direccion
+from apps.metodos_globales import set_data_obj
 
 
 class LandingView(TemplateView):
@@ -81,8 +82,16 @@ class LoginView(TemplateView):
 class PerfilView(TemplateView):
     def get(self, request, *args, **kwargs):
         perfil = Perfil.objects.get(usuario__email=request.user.email)
+        direcciones = Direccion.objects.filter(usuario=request.user)
 
-        return render(request, 'perfil.html', {'perfil': perfil})
+        return render(
+            request,
+            'perfil.html',
+            {
+                'perfil': perfil,
+                'direcciones': direcciones
+            }
+        )
 
     def post(self, request, *args, **kwargs):
         obj = Perfil.objects.get(usuario=request.user)
@@ -101,5 +110,22 @@ class PerfilView(TemplateView):
             msg = 'Datos de Perfil incorrectos'
             messages.add_message(request, messages.ERROR, msg)
             print(form.errors)
+
+        return redirect('perfil')
+
+
+class DireccionView(TemplateView):
+    def post(self, request, *args, **kwargs):
+        form = DireccionForm(request.POST)
+        if form.is_valid():
+            direccion = form.save(commit=False)
+            direccion = set_data_obj(direccion)
+            direccion.usuario = request.user
+            direccion.save()
+            msg = 'Direccion registrada correctamente!'
+            messages.add_message(request, messages.SUCCESS, msg)
+        else:
+            msg = 'Datos de Dirección incorrectos'
+            messages.add_message(request, messages.ERROR, msg)
 
         return redirect('perfil')

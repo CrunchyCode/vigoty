@@ -13,7 +13,7 @@
     <form action="{% url 'tienda' %}" method="POST" class="form-inline" role="form">
         {% csrf_token %}
         <div align="center" class="col-md-12">
-            <h4>MENUS CERCA A: </h4>
+            <h4>MENUS CERCA A: {{ direccion }}</h4>
         </div>
         {% if misma %}
             <div align="center" class="col-xs-12 col-sm-12 col-md-12" id="caja_busqueda">

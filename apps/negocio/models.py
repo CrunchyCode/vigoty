@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from apps.inicio.models import Direccion
 
 
 class TipoPlato(models.Model):
@@ -32,17 +33,10 @@ class Menu(models.Model):
     precio = models.DecimalField(max_digits=6, decimal_places=2)
     tipo_entrega = models.ForeignKey(TipoEntrega)
     rango_hora = models.CharField(max_length=13)
-    creador = models.ForeignKey(User)
-    street_number = models.TextField(null=True, blank=True)
-    route = models.TextField(null=True, blank=True)
-    locality = models.TextField(null=True, blank=True)
-    administrative_area_level_2 = models.TextField(null=True, blank=True)
-    administrative_area_level_1 = models.TextField(null=True, blank=True)
-    country = models.TextField(null=True, blank=True)
-    postal_code = models.CharField(max_length=10, null=True, blank=True)
     lat = models.DecimalField(max_digits=10, decimal_places=7)
     lng = models.DecimalField(max_digits=10, decimal_places=7)
-    direccion_texto = models.CharField(max_length=100)
+    creador = models.ForeignKey(User)
+    direccion = models.ForeignKey(Direccion)
     disponible = models.CharField(max_length=1, default="1")
     estado = models.CharField(max_length=1, default="1")
 
