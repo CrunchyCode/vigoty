@@ -94,7 +94,7 @@
 	                </div>
 					<div class="form-group">
 		   				<label for="">Referencia:</label>
-	                    <textarea name="referencia" class="form-control" rows="8" cols="80" style="resize:none;" placeholder="Referencia"></textarea>
+	                    <textarea name="referencia" id="referencia" class="form-control" rows="8" cols="80" style="resize:none;" placeholder="Referencia"></textarea>
 	                </div>
 				</div>
 				<div class="col-md-6">
@@ -117,8 +117,8 @@
 					<tr>
 						<td>{{ direccion.direccion_texto }}</td>
 						<td>
-							<button type="button" name="button" class="btn btn-xs btn-warning">Ver</button>
-							<button type="button" name="button" class="btn btn-xs btn-warning">Eliminar</button>
+							<button type="button" name="button" class="btn btn-xs btn-warning" onclick="accion('ver', {{ direccion.id }})">Ver</button>
+							<button type="button" name="button" class="btn btn-xs btn-warning" onclick="accion('eliminar', {{ direccion.id }})">Eliminar</button>
 						</td>
 					</tr>
 				{% endfor %}
@@ -197,17 +197,30 @@
 				initMap();
 			}
 		});
-
-		map.addListener('click', function(e) {
-	    	placeMarker(e.latLng, map);
-		});
-
-		function placeMarker(position, map) {
-		    var marker = new google.maps.Marker({
-		        position: position,
-		        map: map
-		    });
-		    map.panTo(position);
-		}
     </script>
+	<script type="text/javascript">
+		function accion(opcion, id_direccion){
+			$.ajax({
+				type: "POST",
+				url: "/direccion",
+				data: {
+					csrfmiddlewaretoken: '{{ csrf_token }}',
+					opcion: opcion,
+					id_direccion: id_direccion
+				},
+				success: function(data) {
+					if (opcion == 'ver') {
+						$('#direccion_texto').val(data[0].fields.direccion_texto);
+						$('#referencia').val(data[0].fields.referencia);
+						initMap();
+					}
+					else{
+						setTimeout(function(){
+				        	location.reload();
+				      	}, 2000); 
+					}
+				}
+			});
+		}
+	</script>
 {% endblock importJS %}

@@ -1,6 +1,8 @@
 from django.core.exceptions import ObjectDoesNotExist
-from django.shortcuts import render, redirect
+from django.core import serializers
+from django.shortcuts import render, redirect, get_object_or_404
 from django.views.generic import TemplateView
+from django.http import HttpResponse
 from django.contrib import messages
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.models import User
@@ -82,7 +84,9 @@ class LoginView(TemplateView):
 class PerfilView(TemplateView):
     def get(self, request, *args, **kwargs):
         perfil = Perfil.objects.get(usuario__email=request.user.email)
-        direcciones = Direccion.objects.filter(usuario=request.user)
+        direcciones = Direccion.objects.filter(
+            usuario=request.user, activo=True
+        )
 
         return render(
             request,
@@ -116,16 +120,36 @@ class PerfilView(TemplateView):
 
 class DireccionView(TemplateView):
     def post(self, request, *args, **kwargs):
-        form = DireccionForm(request.POST)
-        if form.is_valid():
-            direccion = form.save(commit=False)
-            direccion = set_data_obj(direccion)
-            direccion.usuario = request.user
-            direccion.save()
-            msg = 'Direccion registrada correctamente!'
-            messages.add_message(request, messages.SUCCESS, msg)
-        else:
-            msg = 'Datos de Dirección incorrectos'
-            messages.add_message(request, messages.ERROR, msg)
+        if request.is_ajax():
+            if request.POST.get('opcion') == 'ver':
+                direccion = get_object_or_404(
+                    Direccion, pk=request.POST.get('id_direccion')
+                )
+                data = serializers.serialize('json', [direccion])
+                return HttpResponse(data, content_type="application/json")
+            elif request.POST.get('opcion') == 'eliminar':
+                direccion = get_object_or_404(
+                    Direccion, pk=request.POST.get('id_direccion')
+                )
+                direccion.activo = False
+                direccion.save()
 
-        return redirect('perfil')
+                data = 'Direccion eliminada correctamente!'
+                return HttpResponse(data)
+            else:
+                data = 'Acción desconocida'
+                return HttpResponse(data)
+        else:
+            form = DireccionForm(request.POST)
+            if form.is_valid():
+                direccion = form.save(commit=False)
+                direccion = set_data_obj(direccion)
+                direccion.usuario = request.user
+                direccion.save()
+                msg = 'Direccion registrada correctamente!'
+                messages.add_message(request, messages.SUCCESS, msg)
+            else:
+                msg = 'Datos de Dirección incorrectos'
+                messages.add_message(request, messages.ERROR, msg)
+
+            return redirect('perfil')
