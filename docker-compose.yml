@@ -3,7 +3,6 @@ services:
     db:
         restart: always
         image: postgres
-        env_file: config/.envPostgres
     rabbitmq:
         restart: always
         image: rabbitmq
@@ -38,9 +37,8 @@ services:
         restart: always
         image: nginx
         ports:
-            - "88:9000"
+            - "80:80"
         volumes:
             - ./nginx:/etc/nginx/conf.d
-            - /static:/static
         depends_on:
           - web
