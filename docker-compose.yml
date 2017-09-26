@@ -11,7 +11,7 @@ services:
     web: &web
         restart: always
         build: .
-        expose:
+        ports:
             - "8000"
         command:
             bash -c "source ./keys.sh && python manage.py makemigrations --settings=vigoty.settings.prod && python manage.py migrate --settings=vigoty.settings.prod && python manage.py collectstatic --settings=vigoty.settings.prod --noinput && gunicorn vigoty.wsgi -b 0.0.0.0:8000"
@@ -35,10 +35,8 @@ services:
             bash -c "source ./keys.sh && celery -A vigoty beat -l info"
     nginx:
         restart: always
-        image: nginx
+        build: ./nginx
         ports:
             - "80:80"
-        volumes:
-            - ./nginx:/etc/nginx/conf.d
         depends_on:
           - web
