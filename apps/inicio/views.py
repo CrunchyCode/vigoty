@@ -136,6 +136,22 @@ class DireccionView(TemplateView):
 
                 data = 'Direccion eliminada correctamente!'
                 return HttpResponse(data)
+            elif request.POST.get('opcion') == 'defecto':
+                direccion_antigua = get_object_or_404(
+                    Direccion, usuario=request.user,
+                    activo=True, seleccionada=True
+                )
+                direccion = get_object_or_404(
+                    Direccion, pk=request.POST.get('id_direccion')
+                )
+                direccion.seleccionada = True
+                direccion.save()
+
+                direccion_antigua.seleccionada = False
+                direccion_antigua.save()
+
+                data = 'Direccion seleccionada por defecto correctamente!'
+                return HttpResponse(data)
             else:
                 data = 'Acción desconocida'
                 return HttpResponse(data)
@@ -145,6 +161,14 @@ class DireccionView(TemplateView):
                 direccion = form.save(commit=False)
                 direccion = set_data_obj(direccion)
                 direccion.usuario = request.user
+
+                try:
+                    Direccion.objects.get(
+                        usuario=request.user, activo=True, seleccionada=True
+                    )
+                except ObjectDoesNotExist:
+                    direccion.seleccionada = True
+
                 direccion.save()
                 msg = 'Direccion registrada correctamente!'
                 messages.add_message(request, messages.SUCCESS, msg)

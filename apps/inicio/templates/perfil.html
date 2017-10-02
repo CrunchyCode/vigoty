@@ -111,14 +111,23 @@
 			<table class="table">
 				<tr>
 					<td>Dirección</td>
+					<td>Por Defecto</td>
 					<td>Opciones</td>
 				</tr>
 				{% for direccion in direcciones %}
 					<tr>
 						<td>{{ direccion.direccion_texto }}</td>
+						{% if direccion.seleccionada %}
+							<td class="bg-success" align="center">SELECCIONADA</td>
+						{% else %}
+							<td align="center">-</td>
+						{% endif %}
 						<td>
-							<button type="button" name="button" class="btn btn-xs btn-warning" onclick="accion('ver', {{ direccion.id }})">Ver</button>
-							<button type="button" name="button" class="btn btn-xs btn-warning" onclick="accion('eliminar', {{ direccion.id }})">Eliminar</button>
+							<button type="button" name="button" class="btn btn-xs btn-success" onclick="accion('ver', {{ direccion.id }})">Ver</button>
+							<button type="button" name="button" class="btn btn-xs btn-danger" onclick="accion('eliminar', {{ direccion.id }})">Eliminar</button>
+							{% if not direccion.seleccionada %}
+								<button type="button" name="button" class="btn btn-xs btn-primary" onclick="accion('defecto', {{ direccion.id }})">Marcar por defecto</button>
+							{% endif %}
 						</td>
 					</tr>
 				{% endfor %}
@@ -217,7 +226,7 @@
 					else{
 						setTimeout(function(){
 				        	location.reload();
-				      	}, 2000); 
+				      	}, 2000);
 					}
 				}
 			});

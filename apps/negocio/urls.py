@@ -1,8 +1,10 @@
-from django.conf.urls import url
+from django.conf.urls import include, url
 from .views import ListaPlatosView, PlatoView, PublicarMenuView, MenuView
 from django.contrib.auth.decorators import login_required
 
 urlpatterns = [
+    url(r'^api/', include('apps.negocio.api.urls')),
+
     url(r'^platos$', login_required(ListaPlatosView.as_view()), name='platos'),
     url(r'^platos/nuevo$',
         login_required(PlatoView.as_view()), name='nuevo-plato'),
