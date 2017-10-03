@@ -31,6 +31,12 @@ class TiendaView(TemplateView):
         menus = Menu.objects.all()
 
         hoy = datetime.now()
+
+        if fecha is not None:
+            fecha_url = datetime.strptime(fecha, '%Y-%m-%d')
+            if fecha_url < hoy:
+                return redirect('tienda')
+
         mañana = hoy + timedelta(days=1)
         m = mañana
         fechas = []
@@ -66,23 +72,38 @@ class TiendaView(TemplateView):
 
 class TiendaProductoView(TemplateView):
     def get(self, request, *args, **kwargs):
-        '''
-            FALTA CUANDO CANTIDAD DE PEDIDOS DEL MENU ES IGUAL A
-            CANTIDAD MAXIMA QUE OFRECE EL COCINERO.
-        '''
+        perfil = Perfil.objects.get(usuario=request.user)
+        print(perfil.documento_identidad)
+        if perfil.documento_identidad == '':
+            msg = (
+                'Tienes que registrar tu documento de identidad ' +
+                'para hacer un pedido. Visita tu perfil para hacerlo ;)'
+            )
+            messages.add_message(request, messages.WARNING, msg)
+            return redirect('tienda')
+
         try:
             id_menu = kwargs['id']
 
-            menu = get_object_or_404(Menu, pk=id_menu)
+            menu = get_object_or_404(Menu, pk=id_menu, disponible='1')
             detalles = DetalleMenuPlato.objects.filter(menu=menu)
 
             nro_pedidos = Pedido.objects.filter(
                 menu=menu).aggregate(Sum('cantidad'))['cantidad__sum']
 
+            '''
+                Cuando quieren entrar a comprar un Menu que ya esta agotado.
+            '''
+            if nro_pedidos == menu.cantidad_maxima:
+                return redirect('tienda')
+
             if not nro_pedidos:
                 nro_pedidos = 0
 
-            cantidad_disponible = menu.cantidad_maxima + 1 - nro_pedidos
+            '''
+                +1 => para construir 'select' de cantidad de platos disponibles
+            '''
+            cantidad_disponible = menu.cantidad_maxima - nro_pedidos + 1
 
             selectHTML = ''
             selectHTML += (

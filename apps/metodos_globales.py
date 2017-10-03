@@ -2,8 +2,10 @@ import json
 from urllib.request import urlopen
 from urllib.parse import urlencode
 from django.db import connection
+from django.db.models import Sum
 from django.conf import settings
 from apps.negocio.models import Plato, DetalleMenuPlato
+from apps.venta.models import Pedido
 
 
 # METODO PARA OBTENER UN JSON CON TODA LA INFORMACION
@@ -35,6 +37,13 @@ def getDataDireccion(direccion, menus, fecha):
         menus = menus.filter(id__in=ids, estado=2)
 
         for menu in menus:
+            nro_pedidos = Pedido.objects.filter(
+                menu=menu).aggregate(Sum('cantidad'))['cantidad__sum']
+            if nro_pedidos == menu.cantidad_maxima:
+                menu.agotado = True
+            else:
+                menu.agotado = False
+
             detalles = DetalleMenuPlato.objects.filter(menu=menu)
             for det in detalles:
                 menu.plato_mostrar = Plato.objects.get(id=det.plato.id)

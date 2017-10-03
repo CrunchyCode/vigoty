@@ -13,6 +13,9 @@ class Perfil(models.Model):
     def get_nombre_completo(self):
         return self.usuario.first_name + ' ' + self.usuario.last_name
 
+    def __str__(self):
+        return self.usuario
+
 
 class Direccion(models.Model):
     direccion_texto = models.CharField(max_length=140)

@@ -10,6 +10,7 @@
 {% block contenido %}
 
 <div class="row">
+    {% include "master/mensaje.html" %}
     <form action="{% url 'tienda' %}" method="POST" class="form-inline" role="form">
         {% csrf_token %}
         <div align="center" class="col-md-12">
@@ -58,10 +59,21 @@
         {% for menu in menus %}
             <div class="col-lg-3 col-md-4 col-sm-6 col-xs-12 imagen-lista">
                 <div class="hover-module" style="height: 230px;">
-                    <a href="{% url 'tienda' %}/{{ menu.id }}">
+                    {% if menu.agotado %}
                         <img class="img-responsive" src="{{menu.plato_mostrar.imagen.url}}" style="width:440px; height: 200px;" alt="">
                         <hovernombreeat>{{menu.nombre|upper}}</hovernombreeat>
-                    </a>
+                        {% if menu.agotado %}
+                            <hoveragotado>AGOTADO</hoveragotado>
+                        {% endif %}
+                    {% else %}
+                        <a href="{% url 'tienda' %}/{{ menu.id }}">
+                            <img class="img-responsive" src="{{menu.plato_mostrar.imagen.url}}" style="width:440px; height: 200px;" alt="">
+                            <hovernombreeat>{{menu.nombre|upper}}</hovernombreeat>
+                            {% if menu.agotado %}
+                                <hoveragotado>AGOTADO</hoveragotado>
+                            {% endif %}
+                        </a>
+                    {% endif %}
                     <hovernombrecreador>
                         <a href="{% url 'menu' %}/c/{{ menu.creador.id }}">
                             HECHO POR {{menu.creador.first_name|upper}} {{menu.creador.last_name|upper}}
