@@ -13,3 +13,4 @@ celery==4.1.0
 kombu==4.1.0
 gunicorn==19.7.1
 djangorestframework==3.6.4
+djangorestframework-jwt==1.11.0

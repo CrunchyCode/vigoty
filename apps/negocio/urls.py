@@ -3,7 +3,7 @@ from .views import ListaPlatosView, PlatoView, PublicarMenuView, MenuView
 from django.contrib.auth.decorators import login_required
 
 urlpatterns = [
-    url(r'^api/', include('apps.negocio.api.urls')),
+    url(r'^api/', include('apps.negocio.api.urls'), name='api'),
 
     url(r'^platos$', login_required(ListaPlatosView.as_view()), name='platos'),
     url(r'^platos/nuevo$',
