@@ -1,4 +1,4 @@
-from django.conf.urls import url
+from django.conf.urls import url, include
 from .views import (
     TiendaView, TiendaProductoView, VentaView,
     MisPedidosView, MisVentasView, PedidoDetalleView
@@ -6,6 +6,8 @@ from .views import (
 from django.contrib.auth.decorators import login_required
 
 urlpatterns = [
+    url(r'^api/', include('apps.venta.api.urls'), name='api'),
+
     url(r'^tienda$',
         login_required(TiendaView.as_view()), name='tienda'),
     url(r'^tienda/(?P<id>[\d]+)$',

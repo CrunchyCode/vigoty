@@ -1,11 +1,19 @@
 from rest_framework.serializers import ModelSerializer
-from ..models import Menu
+from ..models import Menu, Plato
 
 
-class MenuListSerializer(ModelSerializer):
+class TiendaListSerializer(ModelSerializer):
     class Meta:
         model = Menu
         fields = [
             'nombre',
             'precio',
+        ]
+
+
+class PlatoListSerializer(ModelSerializer):
+    class Meta:
+        model = Plato
+        fields = [
+            'nombre',
         ]
