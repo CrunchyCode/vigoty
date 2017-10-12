@@ -1,7 +1,9 @@
 from datetime import datetime, timedelta
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework.generics import ListAPIView
-from .serializers import TiendaListSerializer, PlatoListSerializer
+from .serializers import (
+    TiendaListSerializer, PlatoListSerializer, MenuListSerializer
+)
 from ..models import Menu, Plato
 from apps.inicio.models import Direccion
 from apps.metodos_globales import getDataDireccion
@@ -40,5 +42,16 @@ class PlatoListAPIView(ListAPIView):
         usuario = self.request.user
 
         queryset = Plato.objects.filter(creador=usuario)
+
+        return queryset
+
+
+class MenuListAPIView(ListAPIView):
+    serializer_class = MenuListSerializer
+
+    def get_queryset(self):
+        usuario = self.request.user
+
+        queryset = Menu.objects.filter(creador=usuario)
 
         return queryset

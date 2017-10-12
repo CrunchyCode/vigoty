@@ -17,3 +17,13 @@ class PlatoListSerializer(ModelSerializer):
         fields = [
             'nombre',
         ]
+
+
+class MenuListSerializer(ModelSerializer):
+    class Meta:
+        model = Menu
+        fields = [
+            'nombre',
+            'fecha_disponibilidad',
+            'disponible',
+        ]
