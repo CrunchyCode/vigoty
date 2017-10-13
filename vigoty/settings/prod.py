@@ -4,7 +4,7 @@ from celery.schedules import crontab
 
 DEBUG = False
 
-ALLOWED_HOSTS = ['vigoty.com']
+ALLOWED_HOSTS = ['vigoty.com', '104.236.18.69']
 
 PRODUCTION_APPS = []
 
